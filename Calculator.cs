@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -133,23 +134,21 @@ namespace Wholemy {
 		};
 		public readonly NumberBodrer A;
 		public readonly NumberBodrer B;
-		public readonly NumberBodrer C;
-		public readonly NumberBodrer D;
-		public readonly NumberBodrer E;
-		public readonly NumberBodrer F;
-		public readonly NumberBodrer G;
-		public readonly NumberBodrer H;
+		public readonly NumberBodrer R;
+		public readonly NumberBodrer M;
+		public readonly NumberBodrer Y;
+		public readonly NumberBodrer X;
+		public readonly TextBodrer T;
 		public readonly GlobalFunctionBodrer Func;
 		public readonly GlobalSettingsBodrer Glob;
 		public MainWindow() {
 			A = new NumberBodrer(this, "A");
 			B = new NumberBodrer(this, "B");
-			C = new NumberBodrer(this, "C");
-			D = new NumberBodrer(this, "D");
-			E = new NumberBodrer(this, "E");
-			F = new NumberBodrer(this, "F");
-			G = new NumberBodrer(this, "G");
-			H = new NumberBodrer(this, "H");
+			R = new NumberBodrer(this, "R");
+			M = new NumberBodrer(this, "M");
+			Y = new NumberBodrer(this, "Y");
+			X = new NumberBodrer(this, "X");
+			T = new TextBodrer(this, "T");
 			Func = new GlobalFunctionBodrer(this);
 			Glob = new GlobalSettingsBodrer(this);
 			this.WindowState = System.Windows.WindowState.Normal;
@@ -162,12 +161,11 @@ namespace Wholemy {
 			VStack.Children.Add(Func);
 			VStack.Children.Add(A);
 			VStack.Children.Add(B);
-			VStack.Children.Add(C);
-			VStack.Children.Add(D);
-			VStack.Children.Add(E);
-			VStack.Children.Add(F);
-			VStack.Children.Add(G);
-			VStack.Children.Add(H);
+			VStack.Children.Add(R);
+			VStack.Children.Add(M);
+			VStack.Children.Add(Y);
+			VStack.Children.Add(X);
+			VStack.Children.Add(T);
 		}
 
 		public void WeigfRaise(int Value) {
@@ -251,7 +249,7 @@ namespace Wholemy {
 			this.BorderBrush = Colors.Foreground;
 			this.Child = PanelMain;
 			var LabelDepth = new System.Windows.Controls.Label() { Content = "Макс дроби", Foreground = new System.Windows.Media.SolidColorBrush(FgColor), VerticalAlignment = System.Windows.VerticalAlignment.Center, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
-			var LabelChars = new System.Windows.Controls.Label() { Content = "Макс дроби в результате", Foreground = new System.Windows.Media.SolidColorBrush(FgColor), VerticalAlignment = System.Windows.VerticalAlignment.Center, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+			var LabelChars = new System.Windows.Controls.Label() { Content = "В результате", Foreground = new System.Windows.Media.SolidColorBrush(FgColor), VerticalAlignment = System.Windows.VerticalAlignment.Center, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
 			var LabelWeigf = new System.Windows.Controls.Label() { Content = "Толщина цифр", Foreground = new System.Windows.Media.SolidColorBrush(FgColor), VerticalAlignment = System.Windows.VerticalAlignment.Center, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
 			var LabelSizef = new System.Windows.Controls.Label() { Content = "Размер цифр", Foreground = new System.Windows.Media.SolidColorBrush(FgColor), VerticalAlignment = System.Windows.VerticalAlignment.Center, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
 			PanelMain.Children.Add(LabelDepth);
@@ -320,122 +318,144 @@ namespace Wholemy {
 			Orientation = System.Windows.Controls.Orientation.Horizontal,
 			Margin = new System.Windows.Thickness(0, 0, 8, 8),
 		};
-		public readonly Button ButtonAaddBequC = new Button("A + B = C", Font277.Instance, 20) {
+		public readonly Button ButtonAaddBequR = new Button("A + B = R", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonAsubBequC = new Button("A - B = C", Font277.Instance, 20) {
+		public readonly Button ButtonAsubBequR = new Button("A - B = R", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonAmulBequC = new Button("A * B = C", Font277.Instance, 20) {
+		public readonly Button ButtonAmulBequR = new Button("A * B = R", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonAdivBequC = new Button("A / B = C", Font277.Instance, 20) {
+		public readonly Button ButtonAdivBequR = new Button("A / B = R", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonAdivBequCmodD = new Button("A / B = C % D", Font277.Instance, 20) {
+		public readonly Button ButtonAmodBequR = new Button("A % B = R", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonAsqrtC = new Button("C = Sqrt(A)", Font277.Instance, 20) {
+		public readonly Button ButtonAdivBequRmodM = new Button("A / B = R % M", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonAsinC = new Button("C = Sin(A)", Font277.Instance, 20) {
+		public readonly Button ButtonXsqrtR = new Button("R = Sqrt(X)", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonAcosC = new Button("C = Cos(A)", Font277.Instance, 20) {
+		public readonly Button ButtonXsinR = new Button("R = Sin(X)", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonAtanC = new Button("C = Tan(A)", Font277.Instance, 20) {
+		public readonly Button ButtonXcosR = new Button("R = Cos(X)", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonAatanC = new Button("C = Atan(A)", Font277.Instance, 20) {
+		public readonly Button ButtonXtanR = new Button("R = Tan(X)", Font277.Instance, 20) {
+			Margin = new System.Windows.Thickness(8, 8, 0, 0),
+		};
+		public readonly Button ButtonXatanR = new Button("R = Atan(X)", Font277.Instance, 20) {
+			Margin = new System.Windows.Thickness(8, 8, 0, 0),
+		};
+		public readonly Button ButtonYXatan2R = new Button("R = Atan2(Y,X)", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
 		public readonly new MainWindow Parent;
 		public GlobalFunctionBodrer(MainWindow Parent) {
 			this.Parent = Parent;
 			this.Child = PanelMain;
-			ButtonAaddBequC.Click += ButtonAaddBequC_Click;
-			PanelMain.Children.Add(ButtonAaddBequC);
-			ButtonAsubBequC.Click += ButtonAsubBequC_Click;
-			PanelMain.Children.Add(ButtonAsubBequC);
-			ButtonAmulBequC.Click += ButtonAmulBequC_Click;
-			PanelMain.Children.Add(ButtonAmulBequC);
-			ButtonAdivBequC.Click += ButtonAdivBequC_Click;
-			PanelMain.Children.Add(ButtonAdivBequC);
-			ButtonAdivBequCmodD.Click += ButtonAdivBequCmodD_Click;
-			PanelMain.Children.Add(ButtonAdivBequCmodD);
-			ButtonAsqrtC.Click += ButtonAsqrtC_Click;
-			PanelMain.Children.Add(ButtonAsqrtC);
-			ButtonAsinC.Click += ButtonAsinC_Click;
-			PanelMain.Children.Add(ButtonAsinC);
-			ButtonAcosC.Click += ButtonAcosC_Click;
-			PanelMain.Children.Add(ButtonAcosC);
-			ButtonAtanC.Click += ButtonAtanC_Click;
-			PanelMain.Children.Add(ButtonAtanC);
-			ButtonAatanC.Click += ButtonAatanC_Click;
-			PanelMain.Children.Add(ButtonAatanC);
+			ButtonAaddBequR.Click += ButtonAaddBequR_Click;
+			PanelMain.Children.Add(ButtonAaddBequR);
+			ButtonAsubBequR.Click += ButtonAsubBequR_Click;
+			PanelMain.Children.Add(ButtonAsubBequR);
+			ButtonAmulBequR.Click += ButtonAmulBequR_Click;
+			PanelMain.Children.Add(ButtonAmulBequR);
+			ButtonAdivBequR.Click += ButtonAdivBequR_Click;
+			PanelMain.Children.Add(ButtonAdivBequR);
+			ButtonAmodBequR.Click += ButtonAmodBequR_Click;
+			PanelMain.Children.Add(ButtonAmodBequR);
+			ButtonAdivBequRmodM.Click += ButtonAdivBequRmodM_Click;
+			PanelMain.Children.Add(ButtonAdivBequRmodM);
+			ButtonXsqrtR.Click += ButtonXsqrtR_Click;
+			PanelMain.Children.Add(ButtonXsqrtR);
+			ButtonXsinR.Click += ButtonXsinR_Click;
+			PanelMain.Children.Add(ButtonXsinR);
+			ButtonXcosR.Click += ButtonXcosR_Click;
+			PanelMain.Children.Add(ButtonXcosR);
+			ButtonXtanR.Click += ButtonXtanR_Click;
+			PanelMain.Children.Add(ButtonXtanR);
+			ButtonXatanR.Click += ButtonXatanR_Click;
+			PanelMain.Children.Add(ButtonXatanR);
+			ButtonYXatan2R.Click += ButtonYXatan2R_Click;
+			PanelMain.Children.Add(ButtonYXatan2R);
 		}
 
-		private void ButtonAatanC_Click(object sender, RoutedEventArgs e) {
+		private void ButtonYXatan2R_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.C.Number = BugNum.TAtanOfTan(this.Parent.A.Number);
+				this.Parent.R.Number = BugNum.TAtan2(this.Parent.Y.Number, this.Parent.X.Number);
 			} catch { }
 		}
 
-		private void ButtonAtanC_Click(object sender, RoutedEventArgs e) {
+		private void ButtonAmodBequR_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.C.Number = BugNum.TTan(this.Parent.A.Number);
+				this.Parent.R.Number = this.Parent.A.Number % this.Parent.B.Number;
 			} catch { }
 		}
 
-		private void ButtonAcosC_Click(object sender, RoutedEventArgs e) {
+		private void ButtonXatanR_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.C.Number = BugNum.TCos(this.Parent.A.Number);
+				this.Parent.R.Number = BugNum.TAtanOfTan(this.Parent.X.Number);
 			} catch { }
 		}
 
-		private void ButtonAsinC_Click(object sender, RoutedEventArgs e) {
+		private void ButtonXtanR_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.C.Number = BugNum.TSin(this.Parent.A.Number);
+				this.Parent.R.Number = BugNum.TTan(this.Parent.X.Number);
 			} catch { }
 		}
 
-		private void ButtonAsqrtC_Click(object sender, RoutedEventArgs e) {
+		private void ButtonXcosR_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.C.Number = BugNum.Sqrt(this.Parent.A.Number);
+				this.Parent.R.Number = BugNum.TCos(this.Parent.X.Number);
 			} catch { }
 		}
 
-		private void ButtonAdivBequCmodD_Click(object sender, RoutedEventArgs e) {
+		private void ButtonXsinR_Click(object sender, RoutedEventArgs e) {
+			try {
+				this.Parent.R.Number = BugNum.TSin(this.Parent.X.Number);
+			} catch { }
+		}
+
+		private void ButtonXsqrtR_Click(object sender, RoutedEventArgs e) {
+			try {
+				this.Parent.R.Number = BugNum.Sqrt(this.Parent.X.Number);
+			} catch { }
+		}
+
+		private void ButtonAdivBequRmodM_Click(object sender, RoutedEventArgs e) {
 			try {
 				var A = this.Parent.A.Number;
 				var B = this.Parent.B.Number;
-				this.Parent.C.Number = BugInt.DivMod(A.Numer / A.Venom, B.Numer / B.Venom, out var M);
-				this.Parent.D.Number = M;
+				this.Parent.R.Number = BugInt.DivMod(A.Numer / A.Venom, B.Numer / B.Venom, out var M);
+				this.Parent.M.Number = M;
 			} catch { }
 		}
 
-		private void ButtonAdivBequC_Click(object sender, RoutedEventArgs e) {
+		private void ButtonAdivBequR_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.C.Number = this.Parent.A.Number / this.Parent.B.Number;
+				this.Parent.R.Number = this.Parent.A.Number / this.Parent.B.Number;
 			} catch { }
 		}
 
-		private void ButtonAmulBequC_Click(object sender, RoutedEventArgs e) {
+		private void ButtonAmulBequR_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.C.Number = this.Parent.A.Number * this.Parent.B.Number;
+				this.Parent.R.Number = this.Parent.A.Number * this.Parent.B.Number;
 			} catch { }
 		}
 
-		private void ButtonAsubBequC_Click(object sender, RoutedEventArgs e) {
+		private void ButtonAsubBequR_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.C.Number = this.Parent.A.Number - this.Parent.B.Number;
+				this.Parent.R.Number = this.Parent.A.Number - this.Parent.B.Number;
 			} catch { }
 		}
 
-		private void ButtonAaddBequC_Click(object sender, RoutedEventArgs e) {
+		private void ButtonAaddBequR_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.C.Number = this.Parent.A.Number + this.Parent.B.Number;
+				this.Parent.R.Number = this.Parent.A.Number + this.Parent.B.Number;
 			} catch { }
 		}
 	}
@@ -684,4 +704,125 @@ namespace Wholemy {
 		}
 	}
 	#endregion
+	public class TextBodrer : System.Windows.Controls.Border {
+		protected override void OnMouseDown(MouseButtonEventArgs e) {
+			e.Handled = true;
+			base.OnMouseDown(e);
+		}
+		protected override void OnMouseUp(MouseButtonEventArgs e) {
+			e.Handled = true;
+			base.OnMouseUp(e);
+		}
+		public static System.Windows.Media.Color BgColor = System.Windows.Media.Color.FromArgb(255, 0x18, 0x18, 0x18);
+		public static System.Windows.Media.Color FgColor = System.Windows.Media.Color.FromArgb(255, 0xef, 0xef, 0xef);
+		public readonly System.Windows.Controls.TextBox TextValue = new System.Windows.Controls.TextBox() {
+			VerticalContentAlignment = System.Windows.VerticalAlignment.Center,
+			Background = Colors.Background,
+			Foreground = Colors.Foreground,
+			TextWrapping = System.Windows.TextWrapping.Wrap,
+			Margin = new System.Windows.Thickness(2),
+			FontSize = Calculator.Sizef,
+			FontFamily = Calculator.GetOnce(Calculator.Weigf)
+		};
+		public readonly System.Windows.Controls.TextBox TextResult = new System.Windows.Controls.TextBox() {
+			VerticalContentAlignment = System.Windows.VerticalAlignment.Center,
+			Background = Colors.Background,
+			Foreground = Colors.Foreground,
+			AcceptsTab = true,
+			AcceptsReturn = true,
+			TextWrapping = System.Windows.TextWrapping.Wrap,
+			Margin = new System.Windows.Thickness(2),
+			FontSize = Calculator.Sizef,
+			FontFamily = Calculator.GetOnce(Calculator.Weigf)
+		};
+		public readonly System.Windows.Controls.Grid GridMain = new System.Windows.Controls.Grid() {
+
+		};
+		public readonly System.Windows.Controls.WrapPanel PanelMain = new System.Windows.Controls.WrapPanel() {
+			Orientation = System.Windows.Controls.Orientation.Horizontal,
+			Margin = new System.Windows.Thickness(0, 0, 8, 8),
+		};
+		public readonly new MainWindow Parent;
+		public readonly Label Label;
+		public readonly Button ButtonT = new Button("Найти все делители", Font277.Instance, 20) {
+			Margin = new System.Windows.Thickness(8, 8, 0, 0),
+		};
+		public TextBodrer(MainWindow Parent, string Name) {
+			this.Parent = Parent;
+			this.Label = new Label(Name, Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
+			Parent.Weigf += Parent_Weigf;
+			Parent.Sizef += Parent_Sizef;
+			Parent.Lowef += Parent_Lowef;
+			this.BorderThickness = new System.Windows.Thickness(2, 2, 2, 2);
+			GridMain.RowDefinitions.Add(new System.Windows.Controls.RowDefinition());
+			GridMain.RowDefinitions.Add(new System.Windows.Controls.RowDefinition());
+			GridMain.RowDefinitions.Add(new System.Windows.Controls.RowDefinition());
+			this.Child = GridMain;
+			GridMain.Children.Add(PanelMain);
+			GridMain.Children.Add(TextValue);
+			GridMain.Children.Add(TextResult);
+			System.Windows.Controls.Grid.SetRow(PanelMain, 0);
+			System.Windows.Controls.Grid.SetRow(TextValue, 1);
+			System.Windows.Controls.Grid.SetRow(TextResult, 2);
+			this.BorderBrush = new System.Windows.Media.SolidColorBrush(FgColor);
+			PanelMain.Children.Add(Label);
+			PanelMain.Children.Add(ButtonT);
+			ButtonT.Click += ButtonT_Click;
+		}
+
+		private void ButtonT_Click(object sender, RoutedEventArgs e) {
+			var Value = new BugInt(TextValue.Text);
+			if (Value < 0) Value = -Value;
+			var Count = 0;
+			Map.ULong<BugInt> List = null;
+			for (var I = 2; I < 1000000 && I < Value; I++) {
+				var D = BugInt.DivMod(Value, I, out var M);
+				if (M == 0) {
+					if (Map.ULong<BugInt>.Add(ref List, (ulong)I, I)) {
+						Count++;
+					}
+				}
+			}
+			if (Count > 0) {
+				for (var Item = List.Base; Item != null; Item = Item.Above) {
+					var V = Item.Value;
+					for (var Item2 = List.Base; Item2 != null; Item2 = Item2.Above) {
+						var V2 = Item2.Value * V;
+						if (V2 < Value && V2 <= ulong.MaxValue) {
+							var D = BugInt.DivMod(Value, V2, out var M);
+							if (M == 0) {
+								if (Map.ULong<BugInt>.Add(ref List, (ulong)V2, V2)) {
+									Count++;
+								}
+							}
+						}
+					}
+				}
+			}
+			var R = "Всего найдено: " + Count.ToString() + "\r\n";
+			if (Count > 0) {
+				for (var Item = List.Base; Item != null; Item = Item.Above) {
+					var V = Item.Value;
+					if (V < Value) {
+						var D = BugInt.DivMod(Value, V, out var M);
+						R += Value.ToString() + " / " + V.ToString() + " = " + D.ToString() + "\r\n";
+					}
+				}
+			}
+			TextResult.Text = R;
+		}
+
+		private void Parent_Lowef(object sender, RoutedEventArgs e) {
+			TextValue.FontFamily = Calculator.GetOnce(Calculator.Weigf);
+			TextResult.FontFamily = Calculator.GetOnce(Calculator.Weigf);
+		}
+		private void Parent_Sizef(object sender, RoutedEventArgs e) {
+			TextValue.FontSize = Calculator.Sizef;
+			TextResult.FontSize = Calculator.Sizef;
+		}
+		private void Parent_Weigf(object sender, RoutedEventArgs e) {
+			TextValue.FontFamily = Calculator.GetOnce(Calculator.Weigf);
+			TextResult.FontFamily = Calculator.GetOnce(Calculator.Weigf);
+		}
+	}
 }

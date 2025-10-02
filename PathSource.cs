@@ -1,6 +1,4 @@
-﻿using static Wholemy.PathSource;
-
-namespace Wholemy {
+﻿namespace Wholemy {
 	public class PathSource {
 		public static ulong[] TTanArray;
 		#region #field# TAtanArray 

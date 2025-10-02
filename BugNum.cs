@@ -140,27 +140,47 @@
 			this.Venom = Venom;
 		}
 		#endregion
-		#region #new# (#string # value) 
-		public BugNum(string value) {
-			if (value == null) throw new System.ArgumentNullException("value");
-			value = value.Trim();
-			value = value.Replace("_", "");
-			value = value.Replace(" ", "");
-			value = value.ToLower();
-			if (value.Equals("nan")) { this.Venom = 0; this.Numer = 0; return; }
-			if (value.Equals("neg")) { this.Venom = 0; this.Numer = -1; return; }
-			if (value.Equals("pos")) { this.Venom = 0; this.Numer = 1; return; }
-			var dotStr = ".";
-			int dot = value.IndexOf(".");
-			if (dot < 0) { dot = value.IndexOf(","); dotStr = ","; }
-			if (dot < 0) { this.Numer = new BugInt(value); this.Venom = 1; return; }
-			value = value.Replace(dotStr, "");
-			var Depth = value.Length - dot;
-			if (Depth > maxDepth) { Depth = maxDepth; value = value.Substring(0, Depth + dot); }
-			var Numer = new BugInt(value);
-			var Venom = BugInt.Pow(10, Depth);
-			this.Numer = Numer;
-			this.Venom = Venom;
+		#region #new# (#string # Value) 
+		public BugNum(string Value) {
+			if (Value == null || Value.Length == 0) { this.Venom = 0; this.Numer = 0; return; }
+			char Char;
+			var Length = Value.Length;
+			if (Length == 3) {
+				Char = Value[0];
+				if (Char == 'n' || Char == 'N') {
+					Char = Value[1];
+					if (Char == 'a' || Char == 'A') {
+						Char = Value[2];
+						if (Char == 'n' || Char == 'N') { this.Venom = 0; this.Numer = 0; return; }
+					} else if (Char == 'e' || Char == 'E') {
+						Char = Value[2];
+						if (Char == 'g' || Char == 'G') { this.Venom = 0; this.Numer = -1; return; }
+					}
+				} else if (Char == 'p' || Char == 'P') {
+					Char = Value[1];
+					if (Char == 'o' || Char == 'O') {
+						Char = Value[2];
+						if (Char == 's' || Char == 'S') { this.Venom = 0; this.Numer = 1; return; }
+					}
+				}
+			}
+			var Chars = new char[Length];
+			var Split = -1;
+			var Count = 0;
+			for (var Index = 0; Index < Length; Index++) {
+				Char = Value[Index];
+				if (Char >= '0' && Char <= '9') {
+					Chars[Count++] = Char;
+				} else if (Split == -1 && (Char == '.' || Char == ',')) {
+					Split = Count;
+				}
+			}
+			while (Count > 0) { if (Chars[Count - 1] == '0') Count--; else break; }
+			if (Count == 0) { this.Venom = 0; this.Numer = 0; return; }
+			if (Split == -1) { this.Numer = new BugInt(new string(Chars, 0, Count)); this.Venom = 1; return; }
+			var Depth = Count - Split;
+			if (Depth > maxDepth) { Depth = maxDepth; Count = Depth + Split; }
+			this.Numer = new BugInt(new string(Chars, 0, Count)); this.Venom = BugInt.Pow(10, Depth);
 		}
 		#endregion
 		#region #property# GcdNum 
@@ -910,9 +930,9 @@
 			return R;
 		}
 		#endregion
-		#region #method# TCot(x) 
-		public static BugNum TCot(BugNum x) {
-			return (1.0 / TTan(x));
+		#region #method# TCot(X) 
+		public static BugNum TCot(BugNum X) {
+			return (1.0 / TTan(X));
 		}
 		#endregion
 		#region #int # #explicit operator # (#struct # V)
