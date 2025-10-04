@@ -354,6 +354,12 @@ namespace Wholemy {
 		public readonly Button ButtonYXatan2R = new Button("R = Atan2(Y,X)", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
+		public readonly Button ButtonYXatanOfTanR = new Button("R = AtanOfTan(X)", Font277.Instance, 20) {
+			Margin = new System.Windows.Thickness(8, 8, 0, 0),
+		};
+		public readonly Button ButtonPI = new Button("R = PI(10K)", Font277.Instance, 20) {
+			Margin = new System.Windows.Thickness(8, 8, 0, 0),
+		};
 		public readonly new MainWindow Parent;
 		public GlobalFunctionBodrer(MainWindow Parent) {
 			this.Parent = Parent;
@@ -382,6 +388,20 @@ namespace Wholemy {
 			PanelMain.Children.Add(ButtonXatanR);
 			ButtonYXatan2R.Click += ButtonYXatan2R_Click;
 			PanelMain.Children.Add(ButtonYXatan2R);
+			ButtonYXatanOfTanR.Click += ButtonYXatanOfTanR_Click;
+			PanelMain.Children.Add(ButtonYXatanOfTanR);
+			ButtonPI.Click += ButtonPI_Click;
+			PanelMain.Children.Add(ButtonPI);
+		}
+
+		private void ButtonPI_Click(object sender, RoutedEventArgs e) {
+			this.Parent.R.Number = BugNum.PI;
+		}
+
+		private void ButtonYXatanOfTanR_Click(object sender, RoutedEventArgs e) {
+			try {
+				this.Parent.R.Number = BugNum.TAtanOfTan(this.Parent.X.Number);
+			} catch { }
 		}
 
 		private void ButtonYXatan2R_Click(object sender, RoutedEventArgs e) {
@@ -398,7 +418,7 @@ namespace Wholemy {
 
 		private void ButtonXatanR_Click(object sender, RoutedEventArgs e) {
 			try {
-				this.Parent.R.Number = BugNum.TAtanOfTan(this.Parent.X.Number);
+				this.Parent.R.Number = BugNum.TAtan(this.Parent.X.Number);
 			} catch { }
 		}
 
