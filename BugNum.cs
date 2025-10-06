@@ -663,12 +663,12 @@
 		public static BugNum TAtanOfTan(BugNum X) {
 			var M = false;
 			if (X < 0) { X = -X; M = true; }
-			var XXXX = X;
-			var L = 0;
+			var RX = X;
+			var L = false;
 			var Y = 0;
 			BugNum YY = 0;
 			BugNum R = 0;
-			if (X >= 2) { L = -1; X = 1.0 / X; goto Next; }
+			if (X >= 2) { L = true; X = 1.0 / X; goto Next; }
 			Y = (int)(X * 8);
 			if (Y < 0) Y++;
 			var XX = Y / new BugNum(8);
@@ -682,18 +682,18 @@
 				X = Y * new BugNum(1, 8);
 				Y = 0; goto Next;
 			}
-			if (L != 0) R = PId2 - R;
+			if (L) R = PId2 - R;
 			var I = new BugNum(1, 10);
 			var c = 5u;
 			var b = 3u;
 			var a = 1u;
 			var T = TOfTan(R);
 			var P = R;
-			while (T != XXXX) {
-				if (T < XXXX) {
+			while (T != RX) {
+				if (T < RX) {
 					var RI = R + I * c;
 					var TT = TOfTan(RI);
-					if (TT > XXXX) {
+					if (TT > RX) {
 						if (c == 1) {
 							I /= 10; c = 5; b = 3;
 						} else { c = b; b = a; }
@@ -704,7 +704,7 @@
 				} else {
 					var RI = R - I * c;
 					var TT = TOfTan(RI);
-					if (TT < XXXX) {
+					if (TT < RX) {
 						if (c == 1) {
 							I /= 10; c = 5; b = 3;
 						} else { c = b; b = a; }
@@ -768,11 +768,11 @@
 		public static BugNum TAtan(BugNum X) {
 			var M = false;
 			if (X < 0) { X = -X; M = true; }
-			var L = 0;
+			var L = false;
 			var Y = 0;
 			BugNum YY = 0;
 			BugNum R = 0;
-			if (X >= 2) { L = -1; X = 1.0 / X; goto Next; }
+			if (X >= 2) { L = true; X = 1.0 / X; goto Next; }
 			Y = (int)(X * 8);
 			if (Y < 0) Y++;
 			var XX = Y / new BugNum(8);
@@ -786,7 +786,7 @@
 				X = Y * new BugNum(1, 8);
 				Y = 0; goto Next;
 			}
-			if (L != 0) R = PId2 - R;
+			if (L) R = PId2 - R;
 			return M ? -R : R;
 		}
 		#endregion
