@@ -18,6 +18,9 @@
 		public static readonly BugNum Nan = new BugNum();
 		public static readonly BugNum Pos = new BugNum() { Numer = 1 };
 		public static readonly BugNum Neg = new BugNum() { Numer = -1 };
+		#region #get# IsVal 
+		public bool IsVal => Venom >= 1;
+		#endregion
 		#region #get# IsNan 
 		/// <summary>Возвращает истину если значение не задано)</summary>
 		#region #invisible# 
@@ -183,20 +186,24 @@
 			var Chars = new char[Length];
 			var Split = -1;
 			var Count = 0;
+			var Minus = "";
 			for (var Index = 0; Index < Length; Index++) {
 				Char = Value[Index];
-				if (Char >= '0' && Char <= '9') {
+				if(Char == '-'&& Count==0) {
+					Minus = "-";
+				} else if (Char >= '0' && Char <= '9') {
 					Chars[Count++] = Char;
 				} else if (Split == -1 && (Char == '.' || Char == ',')) {
 					Split = Count;
 				}
 			}
-			while (Count > 0) { if (Chars[Count - 1] == '0') Count--; else break; }
 			if (Count == 0) { this.Venom = 0; this.Numer = 0; return; }
-			if (Split == -1) { this.Numer = new BugInt(new string(Chars, 0, Count)); this.Venom = 1; return; }
+			if (Split == -1) { this.Numer = new BugInt(Minus+new string(Chars, 0, Count)); this.Venom = 1; return; }
 			var Depth = Count - Split;
+			while (Count > 0 && Depth > 0) { if (Chars[Count - 1] == '0') { Count--; Depth--; } else break; }
+			if (Depth == 0) { this.Numer = new BugInt(Minus + new string(Chars, 0, Count)); this.Venom = 1; return; }
 			if (Depth > maxDepth) { Depth = maxDepth; Count = Depth + Split; }
-			this.Numer = new BugInt(new string(Chars, 0, Count)); this.Venom = BugInt.Pow(10, Depth);
+			this.Numer = new BugInt(Minus + new string(Chars, 0, Count)); this.Venom = BugInt.Pow(10, Depth);
 		}
 		#endregion
 		#region #property# GcdNum 

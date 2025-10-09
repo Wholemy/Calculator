@@ -76,8 +76,8 @@
 		private static int SinCosTanMax;
 		#endregion
 		#region #field# SinCosTanDiv 
-		/// <summary>Массив пар целочисленных делителей, в двое больше чем максимальная длина)</summary>
-		private static uint[][] SinCosTanDiv;
+		///// <summary>Массив пар целочисленных делителей, в двое больше чем максимальная длина)</summary>
+		//private static uint[][] SinCosTanDiv;
 		#endregion
 		#region #method# SinCosTanGen 
 		/// <summary>Генератор опорных множителей и целочисленных множителей для синусов, косинусов и тангенсов)</summary>
@@ -93,28 +93,28 @@
 			while (I < 100 && FI < 98) {
 				var PP = (P++ * P++); var FP = FF * PP;
 				if (FP > uint.MaxValue) { FA[++FI] = (uint)(FF = PP); } else { FA[FI] = (uint)(FF = FP); }
-				var BA = new uint[FI + 1];
-				System.Array.Copy(FA, BA, FI + 1);
+				//var BA = new uint[FI + 1];
+				//System.Array.Copy(FA, BA, FI + 1);
 				var XA = 1.0;
 				for (var fi = 0; fi <= FI; fi++) { XA /= FA[fi]; }
 				PP = (P++ * P++); FP = FF * PP;
 				if (FP > uint.MaxValue) { FA[++FI] = (uint)(FF = PP); } else { FA[FI] = (uint)(FF = FP); }
-				var BB = new uint[FI + 1];
-				System.Array.Copy(FA, BB, FI + 1);
+				//var BB = new uint[FI + 1];
+				//System.Array.Copy(FA, BB, FI + 1);
 				var XB = 1.0;
 				for (var fi = 0; fi <= FI; fi++) { XB /= FA[fi]; }
 				if (XA == 0 || XB == 0) break;
-				B[J] = BA;
+				//B[J] = BA;
 				A[J++] = XA;
-				B[J] = BB;
+				//B[J] = BB;
 				A[J++] = XB;
 				I++;
 			}
 			SinCosTanMax = I;
 			System.Array.Resize(ref A, J);
 			SinCosTanMul = A;
-			System.Array.Resize(ref B, J);
-			SinCosTanDiv = B;
+			//System.Array.Resize(ref B, J);
+			//SinCosTanDiv = B;
 			return I;
 		}
 		#endregion
@@ -135,10 +135,7 @@
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
 			var R = (C / B) * X;
-			if (Y > 0) {
-				var A = Atan0125[--Y];
-				R += A;
-			}
+			if (Y > 0) R += Atan0125[--Y];
 			if (L) R = (System.Math.PI / 2.0) - R;
 			return M ? -R : R;
 		}
@@ -158,7 +155,6 @@
 		}
 		#endregion
 		#region #method# TAsin(X) 
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static double TAsin(double X) {
 			if (X < 0) X = -X;
 			if (X > 1) return 1;
@@ -166,9 +162,7 @@
 		}
 		#endregion
 		#region #method# TCos(X) 
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static double TCos(double X) {
-			//var Test = System.Math.Cos(X);
 			if (X < 0) { X = -X; }
 			if (X > System.Math.PI * 2) {
 				var XP = X / (System.Math.PI * 2);
@@ -187,9 +181,9 @@
 			while (I < Max) {
 				var XXA = XXX *= XX;
 				var XXB = XXX *= XX;
-				if (XXA == 0 || XXB == 0) break;
+				if (XXA == 0 && XXB == 0) break;
 				XXA *= Mul[J++]; XXB *= Mul[J++];
-				if (XXA == 0 || XXB == 0) break;
+				if (XXA == 0 && XXB == 0) break;
 				A[I++] = XXA - XXB;
 			}
 			var RR = 0.0;
@@ -203,7 +197,6 @@
 			//var XX = X * X;
 			//var XXX = XX;
 			//var R = 1 - (XX / 2);
-
 			//var _0 = (XXX *= XX) / 24 - (XXX *= XX) / 720; // 24=(2*3*4) 720=(2*3*4*5*6)
 			//var _1 = (XXX *= XX) / 40320 - (XXX *= XX) / 3628800;
 			//var _2 = (XXX *= XX) / 479001600 - (XXX *= XX) / 87178291200;
@@ -222,14 +215,11 @@
 			//R = _9 + _8 + _7 + _6 + _5 + _4 + _3 + _2 + _1 + _0 + R;
 			if (R < 0) R = -R;
 			if (M) R = -R;
-			//if (Test < 0 && !M) throw new System.InvalidOperationException();
 			return R;
 		}
 		#endregion
 		#region #method# TSin(X) 
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static double TSin(double X) {
-			//var Test = System.Math.Sin(X);
 			X -= System.Math.PI / 2;
 			if (X < 0) { X = -X; }
 			if (X > System.Math.PI * 2) {
@@ -249,9 +239,9 @@
 			while (I < Max) {
 				var XXA = XXX *= XX;
 				var XXB = XXX *= XX;
-				if (XXA == 0 || XXB == 0) break;
+				if (XXA == 0 && XXB == 0) break;
 				XXA *= Mul[J++]; XXB *= Mul[J++];
-				if (XXA == 0 || XXB == 0) break;
+				if (XXA == 0 && XXB == 0) break;
 				A[I++] = XXA - XXB;
 			}
 			var RR = 0.0;
@@ -265,6 +255,7 @@
 			//var XX = X * X;
 			//var XXX = XX;
 			//var R = 1 - (XX / 2);
+
 			//var _0 = (XXX *= XX) / 24 - (XXX *= XX) / 720; // 24=(2*3*4) 720=(2*3*4*5*6)
 			//var _1 = (XXX *= XX) / 40320 - (XXX *= XX) / 3628800;
 			//var _2 = (XXX *= XX) / 479001600 - (XXX *= XX) / 87178291200;
@@ -313,9 +304,9 @@
 			while (I < Max) {
 				var XXA = XXX *= XX;
 				var XXB = XXX *= XX;
-				if (XXA == 0 || XXB == 0) break;
+				if (XXA == 0 && XXB == 0) break;
 				XXA *= Mul[J++]; XXB *= Mul[J++];
-				if (XXA == 0 || XXB == 0) break;
+				if (XXA == 0 && XXB == 0) break;
 				A[I++] = XXA - XXB;
 			}
 			var RR = 0.0;
@@ -352,9 +343,7 @@
 		}
 		#endregion
 		#region #method# TTan(X) 
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static double TTan(double X) {
-			//var Test = System.Math.Tan(X);
 			var S = false;
 			var C = 0.0;
 		Next:
@@ -378,9 +367,9 @@
 			while (I < Max) {
 				var XXA = XXX *= XX;
 				var XXB = XXX *= XX;
-				if (XXA == 0 || XXB == 0) break;
+				if (XXA == 0 && XXB == 0) break;
 				XXA *= Mul[J++]; XXB *= Mul[J++];
-				if (XXA == 0 || XXB == 0) break;
+				if (XXA == 0 && XXB == 0) break;
 				A[I++] = XXA - XXB;
 			}
 			var RR = 0.0;
@@ -414,12 +403,10 @@
 			if (M) R = -R;
 			if (!S) { C = R; S = true; goto Next; }
 			R /= C;
-			//if (Test < 0 && R >= 0) throw new System.InvalidOperationException();
 			return R;
 		}
 		#endregion
 		#region #method# TCot(x) 
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static double TCot(double x) {
 			return (1.0 / TTan(x));
 		}

@@ -17,6 +17,15 @@ namespace Wholemy {
 				RemoveHandler(ClickEvent, value);
 			}
 		}
+		public static readonly RoutedEvent EnterEvent = EventManager.RegisterRoutedEvent("Enter", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
+		public event RoutedEventHandler Enter {
+			add {
+				AddHandler(EnterEvent, value);
+			}
+			remove {
+				RemoveHandler(EnterEvent, value);
+			}
+		}
 		private DrawingVisual _child;
 		private DrawingVisual _default;
 		private DrawingVisual _enter;
@@ -48,6 +57,9 @@ namespace Wholemy {
 			return _child;
 		}
 		private string text;
+		public string Text {
+			get { return text; }
+		}
 		private PathFont font;
 		private double height;
 		private double width;
@@ -109,6 +121,8 @@ namespace Wholemy {
 				}
 				Child = _enter;
 				e.Handled = true;
+				RoutedEventArgs ee = new RoutedEventArgs(EnterEvent, this);
+				RaiseEvent(ee);
 			}
 			base.OnMouseEnter(e);
 		}

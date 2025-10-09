@@ -3843,7 +3843,7 @@
 
 					S.AddRotate(51.5, 88, 500);
 					S.AddOrc(88, 300, 25);
-
+					S.Union();
 					S.PresetRoot(0.075);
 					S.AddArc01(88, 300, 288, 500/*, 0.075*/);
 					S.CutRotate();
@@ -3863,10 +3863,10 @@
 					S.Thickness = D;
 
 					S.AddOrc(162, 500, 25);
-
+					S.Union();
 					S.AddRotate(51.5, 162, 500);
 					S.AddOrc(162, 300, 25);
-
+					S.Union();
 					S.PresetRoot(0.075);
 					S.AddArc01(162, 300, 362, 500/*, 0.075*/);
 					S.CutRotate();
