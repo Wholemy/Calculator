@@ -1,4 +1,6 @@
 Калькулятор для больших дробных чисел, программа написанная для Windows и .NET Framework 4.8.1 в одном единственном выполняемом файле, для тех кто устал от онлайн калькуляторов и ограничений BigInteger, тут реализовано все с нуля и все функции имеют открытый исходный код, который можно использовать для своих разработок)
 <img width="1920" height="1080" alt="изображение" src="https://github.com/user-attachments/assets/da050fec-5c62-4e9e-ad1c-28e1644d5610" />
 График нарисованный с помощью встроенных функций вычисления синуса, косинуса, тангенса и атангенса, на одной картинке в одном и том же измерении)
-<img width="1810" height="748" alt="Screenshot 2025-10-04 175152" src="https://github.com/user-attachments/assets/e8ac16d2-6c96-4b81-970b-e03f268e9d14" />
+<img width="1810" height="748" alt="Косинус Синус Тангенс и Атангенс" src="https://github.com/user-attachments/assets/e8ac16d2-6c96-4b81-970b-e03f268e9d14" />
+![Косинус Синус Тангенс и Атангенс](https://github.com/user-attachments/assets/dd8649eb-6db2-45f2-9d16-a54afbc85c15)
+![Косинус Синус Тангенс и Атангенс](https://github.com/user-attachments/assets/a9073a05-9399-4f55-b307-8ddfd3460d2b)
