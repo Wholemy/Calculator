@@ -301,35 +301,73 @@
 		#region #operator# / 
 		public static BugNum operator /(BugNum L, BugNum R) {
 			if (R.Numer == 0) throw new System.DivideByZeroException("R");
-			return new BugNum(L.Numer * R.Venom, L.Venom * R.Numer);
+			var LMinus = false;
+			if (L < 0) { L = -L; LMinus = true; }
+			var RMinus = false;
+			if (R < 0) { R = -R; RMinus = true; }
+			var Result = new BugNum(L.Numer * R.Venom, L.Venom * R.Numer);
+			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
+			if (LMinus ^ RMinus) Result = -Result;
+			return Result;
 		}
 		public static BugNum operator /(BugNum L, int R) {
 			if (R == 0) throw new System.DivideByZeroException("R");
-			return new BugNum(L.Numer, L.Venom * R);
+			var LMinus = false;
+			if (L < 0) { L = -L; LMinus = true; }
+			var RMinus = false;
+			if (R < 0) { R = -R; RMinus = true; }
+			var Result = new BugNum(L.Numer, L.Venom * R);
+			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
+			if (LMinus ^ RMinus) Result = -Result;
+			return Result;
 		}
 		#endregion
 		#region #operator# % 
 		public static BugNum operator %(BugNum L, BugNum R) {
 			if (R.Numer == 0) throw new System.DivideByZeroException("R");
-			var D = new BugNum(L.Numer * R.Venom, L.Venom * R.Numer);
-			var N = D.Numer;
-			if (N < 0) { N += D.Venom - (N % D.Venom); } else { N -= (N % D.Venom); }
-			return L - new BugNum(N, D.Venom) * R;
+			var LMinus = false;
+			if (L < 0) { L = -L; LMinus = true; }
+			var RMinus = false;
+			if (R < 0) { R = -R; RMinus = true; }
+			var Result = new BugNum(L.Numer * R.Venom, L.Venom * R.Numer);
+			Result = (L - new BugNum(Result.Numer - (Result.Numer % Result.Venom), Result.Venom) * R);
+			if (LMinus) Result = R - Result;
+			if (RMinus) Result = -Result;
+			return Result;
 		}
 		public static BugNum operator %(BugNum L, int R) {
 			if (R == 0) throw new System.DivideByZeroException("R");
-			var D = new BugNum(L.Numer, L.Venom * R);
-			var N = D.Numer;
-			if (N < 0) { N += D.Venom - (N % D.Venom); } else { N -= (N % D.Venom); }
-			return L - new BugNum(N, D.Venom) * R;
+			var LMinus = false;
+			if (L < 0) { L = -L; LMinus = true; }
+			var RMinus = false;
+			if (R < 0) { R = -R; RMinus = true; }
+			var Result = new BugNum(L.Numer, L.Venom * R);
+			Result = (L - new BugNum(Result.Numer - (Result.Numer % Result.Venom), Result.Venom) * R);
+			if (LMinus) Result = R - Result;
+			if (RMinus) Result = -Result;
+			return Result;
 		}
 		#endregion
 		#region #operator# * 
 		public static BugNum operator *(BugNum L, BugNum R) {
-			return new BugNum(L.Numer * R.Numer, R.Venom * L.Venom);
+			var LMinus = false;
+			if (L < 0) { L = -L; LMinus = true; }
+			var RMinus = false;
+			if (R < 0) { R = -R; RMinus = true; }
+			var Result = new BugNum(L.Numer * R.Numer, R.Venom * L.Venom);
+			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
+			if (LMinus ^ RMinus) Result = -Result;
+			return Result;
 		}
 		public static BugNum operator *(BugNum L, int R) {
-			return new BugNum(L.Numer * R, L.Venom);
+			var LMinus = false;
+			if (L < 0) { L = -L; LMinus = true; }
+			var RMinus = false;
+			if (R < 0) { R = -R; RMinus = true; }
+			var Result = new BugNum(L.Numer * R, L.Venom);
+			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
+			if (LMinus ^ RMinus) Result = -Result;
+			return Result;
 		}
 		#endregion
 		#region #operator# - 
