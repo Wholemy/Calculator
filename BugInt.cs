@@ -1697,7 +1697,11 @@
 		#endregion
 		#region #method# Gcd(L, R) 
 		public static BugInt Gcd(BugInt L, BugInt R) {
+			var M = false;
+			if (L < 0) { L = -L; M = true; }
+			if (R < 0) { R = -R; M = true; }
 			while (R != 0) { var X = L % R; L = R; R = X; }
+			if (M) L = -L;
 			return L;
 		}
 		#endregion

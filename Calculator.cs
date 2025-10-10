@@ -142,10 +142,7 @@ namespace Wholemy {
 		public readonly NumberBodrer Y;
 		public readonly NumberBodrer X;
 		public readonly TextBodrer T;
-		public readonly DirectBodrer D0;
-		public readonly DirectBodrer D1;
-		public readonly DirectBodrer D2;
-		public readonly DirectBodrer D3;
+		public readonly DirectStackBorder D;
 		public readonly GlobalFunctionBodrer Func;
 		public readonly GlobalSettingsBodrer Glob;
 		public MainWindow() {
@@ -156,10 +153,7 @@ namespace Wholemy {
 			Y = new NumberBodrer(this, "Y");
 			X = new NumberBodrer(this, "X");
 			T = new TextBodrer(this, "T");
-			D0 = new DirectBodrer(this, "D0");
-			D1 = new DirectBodrer(this, "D1");
-			D2 = new DirectBodrer(this, "D2");
-			D3 = new DirectBodrer(this, "D3");
+			D = new DirectStackBorder(this, "D");
 			Func = new GlobalFunctionBodrer(this);
 			Glob = new GlobalSettingsBodrer(this);
 			this.WindowState = System.Windows.WindowState.Normal;
@@ -177,10 +171,7 @@ namespace Wholemy {
 			VStack.Children.Add(Y);
 			VStack.Children.Add(X);
 			VStack.Children.Add(T);
-			VStack.Children.Add(D0);
-			VStack.Children.Add(D1);
-			VStack.Children.Add(D2);
-			VStack.Children.Add(D3);
+			VStack.Children.Add(D);
 		}
 
 		public void WeigfRaise(int Value) {
@@ -352,16 +343,7 @@ namespace Wholemy {
 		public readonly Button ButtonT = new Button("T", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonD0 = new Button("D0", Font277.Instance, 20) {
-			Margin = new System.Windows.Thickness(8, 8, 0, 0),
-		};
-		public readonly Button ButtonD1 = new Button("D1", Font277.Instance, 20) {
-			Margin = new System.Windows.Thickness(8, 8, 0, 0),
-		};
-		public readonly Button ButtonD2 = new Button("D2", Font277.Instance, 20) {
-			Margin = new System.Windows.Thickness(8, 8, 0, 0),
-		};
-		public readonly Button ButtonD3 = new Button("D3", Font277.Instance, 20) {
+		public readonly Button ButtonD = new Button("D", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
 		public readonly Button ButtonAaddBequR = new Button("A + B = R", Font277.Instance, 20) {
@@ -424,14 +406,8 @@ namespace Wholemy {
 			PanelMain.Children.Add(ButtonX);
 			ButtonT.Click += ButtonT_Click;
 			PanelMain.Children.Add(ButtonT);
-			ButtonD0.Click += ButtonD0_Click;
-			PanelMain.Children.Add(ButtonD0);
-			ButtonD1.Click += ButtonD1_Click;
-			PanelMain.Children.Add(ButtonD1);
-			ButtonD2.Click += ButtonD2_Click;
-			PanelMain.Children.Add(ButtonD2);
-			ButtonD3.Click += ButtonD3_Click;
-			PanelMain.Children.Add(ButtonD3);
+			ButtonD.Click += ButtonD_Click;
+			PanelMain.Children.Add(ButtonD);
 			ButtonAaddBequR.Click += ButtonAaddBequR_Click;
 			PanelMain.Children.Add(ButtonAaddBequR);
 			ButtonAsubBequR.Click += ButtonAsubBequR_Click;
@@ -462,28 +438,10 @@ namespace Wholemy {
 			PanelMain.Children.Add(ButtonPI);
 		}
 
-		private void ButtonD3_Click(object sender, RoutedEventArgs e) {
-			if (this.Parent.D3.Visibility != Visibility.Visible)
-				this.Parent.D3.Visibility = Visibility.Visible;
-			else this.Parent.D3.Visibility = Visibility.Collapsed;
-		}
-
-		private void ButtonD2_Click(object sender, RoutedEventArgs e) {
-			if (this.Parent.D2.Visibility != Visibility.Visible)
-				this.Parent.D2.Visibility = Visibility.Visible;
-			else this.Parent.D2.Visibility = Visibility.Collapsed;
-		}
-
-		private void ButtonD1_Click(object sender, RoutedEventArgs e) {
-			if (this.Parent.D1.Visibility != Visibility.Visible)
-				this.Parent.D1.Visibility = Visibility.Visible;
-			else this.Parent.D1.Visibility = Visibility.Collapsed;
-		}
-
-		private void ButtonD0_Click(object sender, RoutedEventArgs e) {
-			if (this.Parent.D0.Visibility != Visibility.Visible)
-				this.Parent.D0.Visibility = Visibility.Visible;
-			else this.Parent.D0.Visibility = Visibility.Collapsed;
+		private void ButtonD_Click(object sender, RoutedEventArgs e) {
+			if (this.Parent.D.Visibility != Visibility.Visible)
+				this.Parent.D.Visibility = Visibility.Visible;
+			else this.Parent.D.Visibility = Visibility.Collapsed;
 		}
 
 		private void ButtonT_Click(object sender, RoutedEventArgs e) {
@@ -879,20 +837,111 @@ namespace Wholemy {
 		}
 	}
 	#endregion
+	#region #class# DirectButton 
+	public class DirectButton:Button {
+		public DirectBodrer D;
+		public DirectButton(DirectBodrer D, string text, PathFont font, double height):base(text,font,height) {
+			this.D = D;
+		}
+	}
+	#endregion
+	#region #class# DirectStackBorder 
+	public class DirectStackBorder : System.Windows.Controls.Border {
+		#region #field# GridMain 
+		public readonly System.Windows.Controls.Grid GridMain = new System.Windows.Controls.Grid() {
+
+		};
+		#endregion
+		#region #field# PanelMain 
+		public readonly System.Windows.Controls.WrapPanel PanelMain = new System.Windows.Controls.WrapPanel() {
+			Orientation = System.Windows.Controls.Orientation.Horizontal,
+			Margin = new System.Windows.Thickness(0, 0, 8, 8),
+		};
+		#endregion
+		#region #field# StackMain 
+		public readonly System.Windows.Controls.StackPanel StackMain = new System.Windows.Controls.StackPanel() {
+			Orientation = System.Windows.Controls.Orientation.Vertical,
+			VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+			HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+		};
+		#endregion
+		public readonly new MainWindow Parent;
+		public readonly Button Label;
+		public readonly Button Adder;
+		public readonly Button Suber;
+		public System.Collections.Generic.List<DirectButton> Buttons = new System.Collections.Generic.List<DirectButton>();
+		public DirectStackBorder(MainWindow Parent, string Name) {
+			this.Parent = Parent;
+			this.Child = GridMain;
+			GridMain.RowDefinitions.Add(new System.Windows.Controls.RowDefinition());
+			GridMain.RowDefinitions.Add(new System.Windows.Controls.RowDefinition());
+			System.Windows.Controls.Grid.SetRow(PanelMain, 0);
+			System.Windows.Controls.Grid.SetRow(StackMain, 1);
+			GridMain.Children.Add(PanelMain);
+			GridMain.Children.Add(StackMain);
+			this.Label = new Button(Name, Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
+			this.Label.Click += Label_Click;
+			PanelMain.Children.Add(Label);
+			this.Adder = new Button("D++", Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
+			this.Adder.Click += Adder_Click;
+			PanelMain.Children.Add(Adder);
+			this.Suber = new Button("D--", Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
+			this.Suber.Click += Suber_Click;
+			PanelMain.Children.Add(Suber);
+			Adder_Click(null,null);
+		}
+
+		private void Suber_Click(object sender, RoutedEventArgs e) {
+			var I = Buttons.Count;
+			if (I > 0) {
+				I--;
+				var B = Buttons[I];
+				B.Click -= B_Click;
+				StackMain.Children.Remove(B.D);
+				PanelMain.Children.Remove(B);
+				B.D.Removed();
+				Buttons.Remove(B);
+			}
+		}
+
+		private void Adder_Click(object sender, RoutedEventArgs e) {
+			var N = "D" + Buttons.Count;
+			var D = new DirectBodrer(this, N);
+			var B = new DirectButton(D,N, Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
+			B.Click += B_Click;
+			Buttons.Add(B);
+			StackMain.Children.Add(D);
+			PanelMain.Children.Add(B);
+		}
+		public void AddCopy(string text) {
+			var N = "D" + Buttons.Count;
+			var D = new DirectBodrer(this, N);
+			var B = new DirectButton(D, N, Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
+			B.Click += B_Click;
+			Buttons.Add(B);
+			StackMain.Children.Add(D);
+			PanelMain.Children.Add(B);
+			D.TextValue.Text = text;
+			D.TextValue.CaretIndex = text.Length;
+		}
+		private void B_Click(object sender, RoutedEventArgs e) {
+			var B = sender as DirectButton;
+			if (B!=null) {
+				if (B.D.Visibility != Visibility.Visible)
+					B.D.Visibility = Visibility.Visible;
+				else B.D.Visibility = Visibility.Collapsed;
+			}
+		}
+		#region #method# Label_Click(sender, e) 
+		private void Label_Click(object sender, RoutedEventArgs e) {
+			this.Visibility = Visibility.Collapsed;
+		}
+
+		#endregion
+	}
+	#endregion
 	#region #class# DirectBodrer 
 	public class DirectBodrer : System.Windows.Controls.Border {
-		#region #method# OnMouseDown(e) 
-		protected override void OnMouseDown(MouseButtonEventArgs e) {
-			e.Handled = true;
-			base.OnMouseDown(e);
-		}
-		#endregion
-		#region #method# OnMouseUp(e) 
-		protected override void OnMouseUp(MouseButtonEventArgs e) {
-			e.Handled = true;
-			base.OnMouseUp(e);
-		}
-		#endregion
 		public static System.Windows.Media.Color BgColor = System.Windows.Media.Color.FromArgb(255, 0x18, 0x18, 0x18);
 		public static System.Windows.Media.Color FgColor = System.Windows.Media.Color.FromArgb(255, 0xef, 0xef, 0xef);
 		#region #field# TextValue 
@@ -932,9 +981,9 @@ namespace Wholemy {
 			Margin = new System.Windows.Thickness(0, 0, 8, 8),
 		};
 		#endregion
-		public readonly new MainWindow Parent;
+		public readonly new DirectStackBorder Parent;
 		public readonly Button Label;
-
+		public readonly Button DCopy;
 		public readonly Button NDot;
 		public readonly Button NCom;
 		public readonly Button N0;
@@ -957,9 +1006,9 @@ namespace Wholemy {
 		public readonly Button FMod;
 		public readonly Button CBackspace;
 		#region #new# (Parent, Name) 
-		public DirectBodrer(MainWindow Parent, string Name) {
+		public DirectBodrer(DirectStackBorder Parent, string Name) {
 			this.Parent = Parent;
-			this.Label = new Button(Name, Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
+			this.DCopy = new Button("D++", Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
 			this.NDot = new Button(".", Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
 			this.NCom = new Button(",", Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
 			this.N0 = new Button("0", Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
@@ -981,9 +1030,9 @@ namespace Wholemy {
 			this.FDiv = new Button("/", Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
 			this.FMod = new Button("%", Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
 			this.CBackspace = new Button("<-", Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
-			Parent.Weigf += Parent_Weigf;
-			Parent.Sizef += Parent_Sizef;
-			Parent.Lowef += Parent_Lowef;
+			Parent.Parent.Weigf += Parent_Weigf;
+			Parent.Parent.Sizef += Parent_Sizef;
+			Parent.Parent.Lowef += Parent_Lowef;
 			this.BorderThickness = new System.Windows.Thickness(2, 2, 2, 2);
 			GridMain.RowDefinitions.Add(new System.Windows.Controls.RowDefinition());
 			GridMain.RowDefinitions.Add(new System.Windows.Controls.RowDefinition());
@@ -997,8 +1046,11 @@ namespace Wholemy {
 			System.Windows.Controls.Grid.SetRow(TextValue, 1);
 			System.Windows.Controls.Grid.SetRow(TextResult, 2);
 			this.BorderBrush = new System.Windows.Media.SolidColorBrush(FgColor);
+			this.Label = new Button(Name, Font277.Instance, 20) { Margin = new Thickness(8, 8, 0, 0) };
 			this.Label.Click += Label_Click;
 			PanelMain.Children.Add(Label);
+			DCopy.Click += DCopy_Click;
+			PanelMain.Children.Add(DCopy);
 			PanelMain.Children.Add(NDot);
 			NDot.Click += N_Click;
 			NDot.Enter += N_Enter;
@@ -1063,8 +1115,16 @@ namespace Wholemy {
 			CBackspace.Click += CBackspace_Click;
 			CBackspace.Enter += N_Enter;
 		}
-		#endregion
 
+		private void DCopy_Click(object sender, RoutedEventArgs e) {
+			Parent.AddCopy(TextValue.Text);
+		}
+		#endregion
+		public void Removed() {
+			Parent.Parent.Weigf -= Parent_Weigf;
+			Parent.Parent.Sizef -= Parent_Sizef;
+			Parent.Parent.Lowef -= Parent_Lowef;
+		}
 		#region #method# Plr_Click(sender, e) 
 		private void Plr_Click(object sender, RoutedEventArgs e) {
 			var D = sender as Button;
@@ -1269,6 +1329,7 @@ namespace Wholemy {
 			}
 		}
 		#endregion
+		#region #method# TextValue_TextChanged(sender, e) 
 		private void TextValue_TextChanged(object sender, TextChangedEventArgs e) {
 			var Chars = TextValue.Text;
 			OperStack Operator = null;
@@ -1326,9 +1387,9 @@ namespace Wholemy {
 									if (V.IsVal) {
 										DepthStack.Value = new ValueStack(V, i - 1, Depth, DepthStack.Value);
 										var Op = DepthStack.Operator;
-										if (Op!=null) {
+										if (Op != null) {
 											DepthStack.Operator = null;
-											DepthStack.Value.OpLeft=Op;
+											DepthStack.Value.OpLeft = Op;
 										}
 									}
 								}
@@ -1453,9 +1514,10 @@ namespace Wholemy {
 				}
 			}
 			if (Value != null)
-			TextResult.Text = Value.End().ToString();
+				TextResult.Text = Value.End().ToString();
 			else TextResult.Text = "";
 		}
+		#endregion
 		#region #method# N_Enter(sender, e) 
 		private void N_Enter(object sender, RoutedEventArgs e) {
 			TextValue.Focus();

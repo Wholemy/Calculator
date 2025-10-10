@@ -211,11 +211,14 @@
 			get {
 				var Numer = this.Numer;
 				var Venom = this.Venom;
+				var Minus = false;
 				if (Numer != 0 && Venom != 0) {
+					if(Numer<0) { Numer = -Numer; Minus = true; }
 					var Gcd = BugInt.Gcd(Numer, Venom);
 					if (Gcd > 1) { Numer /= Gcd; Venom /= Gcd; }
 				}
-				return new BugNum(Numer, Venom/*, Depth*/);
+				if(Minus) Numer=-Numer;
+				return new BugNum(Numer, Venom);
 			}
 		}
 		public BugInt Gcd {
