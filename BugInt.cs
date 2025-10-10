@@ -1151,8 +1151,7 @@
 					LCount = RCount;
 				}
 				if (LBelow) {
-					if (OCount < LCount) { OCount = LCount; }
-					OArray = new uint[OCount];
+					OArray = new uint[RCount];
 					OCount = 0;
 					while (OCount < RCount) {
 						long aa = 0;
@@ -1165,8 +1164,7 @@
 					}
 					OMinus = !OMinus;
 				} else {
-					if (OCount < LCount) { OCount = LCount; }
-					OArray = new uint[OCount];
+					OArray = new uint[LCount];
 					OCount = 0;
 					while (OCount < LCount) {
 						long aa = 0;
@@ -1225,8 +1223,7 @@
 					A = (uint)(-(int)(aa >> 32));
 					OMinus = !OMinus;
 				} else {
-					if (OCount < LCount) { OCount = LCount; }
-					OArray = new uint[OCount];
+					OArray = new uint[LCount];
 					OCount = 0;
 					while (OCount < LCount) {
 						long aa = 0;
@@ -1357,7 +1354,6 @@
 					}
 				}
 			} else {
-				//if (LMinus) OMinus = !OMinus;
 				OCount = 1;
 				if (OCount < LCount) { OCount = LCount; }
 				OArray = new uint[OCount + 1];

@@ -189,7 +189,7 @@
 			var Minus = "";
 			for (var Index = 0; Index < Length; Index++) {
 				Char = Value[Index];
-				if(Char == '-'&& Count==0) {
+				if (Char == '-' && Count == 0) {
 					Minus = "-";
 				} else if (Char >= '0' && Char <= '9') {
 					Chars[Count++] = Char;
@@ -198,7 +198,7 @@
 				}
 			}
 			if (Count == 0) { this.Venom = 0; this.Numer = 0; return; }
-			if (Split == -1) { this.Numer = new BugInt(Minus+new string(Chars, 0, Count)); this.Venom = 1; return; }
+			if (Split == -1) { this.Numer = new BugInt(Minus + new string(Chars, 0, Count)); this.Venom = 1; return; }
 			var Depth = Count - Split;
 			while (Count > 0 && Depth > 0) { if (Chars[Count - 1] == '0') { Count--; Depth--; } else break; }
 			if (Depth == 0) { this.Numer = new BugInt(Minus + new string(Chars, 0, Count)); this.Venom = 1; return; }
@@ -334,12 +334,46 @@
 		#endregion
 		#region #operator# - 
 		public static BugNum operator -(BugNum L, BugNum R) {
-			return new BugNum(L.Numer * R.Venom - R.Numer * L.Venom, L.Venom * R.Venom);
+			var LMinus = false;
+			if (L < 0) { L = -L; LMinus = true; }
+			var RMinus = false;
+			if (R < 0) { R = -R; RMinus = true; }
+			var OMinus = LMinus;
+			BugNum Result;
+			if (LMinus == RMinus) {
+				if (L < R) {
+					Result = new BugNum(R.Numer * L.Venom - L.Numer * R.Venom, L.Venom * R.Venom);
+					OMinus = !OMinus;
+				} else {
+					Result = new BugNum(L.Numer * R.Venom - R.Numer * L.Venom, L.Venom * R.Venom);
+				}
+			} else {
+				Result = new BugNum(L.Numer * R.Venom + R.Numer * L.Venom, L.Venom * R.Venom);
+			}
+			if (OMinus) Result = -Result;
+			return Result;
 		}
 		#endregion
 		#region #operator# + 
 		public static BugNum operator +(BugNum L, BugNum R) {
-			return new BugNum(L.Numer * R.Venom + R.Numer * L.Venom, L.Venom * R.Venom);
+			var LMinus = false;
+			if (L < 0) { L = -L; LMinus = true; }
+			var RMinus = false;
+			if (R < 0) { R = -R; RMinus = true; }
+			var OMinus = LMinus;
+			BugNum Result;
+			if (LMinus == RMinus) {
+				Result = new BugNum(L.Numer * R.Venom + R.Numer * L.Venom, L.Venom * R.Venom);
+			} else {
+				if (L < R) {
+					Result = new BugNum(R.Numer * L.Venom - L.Numer * R.Venom, L.Venom * R.Venom);
+					OMinus = !OMinus;
+				} else {
+					Result = new BugNum(L.Numer * R.Venom - R.Numer * L.Venom, L.Venom * R.Venom);
+				}
+			}
+			if (OMinus) Result = -Result;
+			return Result;
 		}
 		#endregion
 		#region #method# Pow(L, E) 

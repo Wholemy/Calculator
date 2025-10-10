@@ -1147,15 +1147,15 @@ namespace Wholemy {
 			public ValueStack Next;
 			public ValueStack(BugNum Value, int Index, int Depth, ValueStack Next) {
 				if (Next != null && Next.Operator != null) {
-					var Op = Next.Operator;
-					if (Op.Next != null) {
-						var OpOp = Op.Next;
-						if (Op.Index > OpOp.Index + 1 && (Op.Char == '-' || Op.Char == '+')) {
-							Next.Operator = OpOp;
-							Op.Next = null;
-							this.OpLeft = Op;
-						}
-					}
+					//var Op = Next.Operator;
+					//if (Op.Next != null) {
+					//	var OpOp = Op.Next;
+					//	if (Op.Index > OpOp.Index + 1 && (Op.Char == '-' || Op.Char == '+')) {
+					//		Next.Operator = OpOp;
+					//		Op.Next = null;
+					//		this.OpLeft = Op;
+					//	}
+					//}
 					Next.Operator = Next.Operator.Invert();
 				}
 				this.Value = Value;
@@ -1184,24 +1184,36 @@ namespace Wholemy {
 				if (B != null) {
 					if (A != null) {
 						if (A.OpLeft != null) {
-							switch (A.OpLeft.Char) {
-								case '-': A.Value = -A.Value; break;
-								case '+': A.Value = +A.Value; break;
+							A.OpLeft = A.OpLeft.Invert();
+							while (A.OpLeft != null) {
+								switch (A.OpLeft.Char) {
+									case '-': A.Value = -A.Value; break;
+									case '+': A.Value = +A.Value; break;
+									case '*': A.Value *= A.Value; break;
+									case '/': if (this.Value != 0) A.Value /= A.Value; break;
+									case '%': if (this.Value != 0) A.Value %= A.Value; break;
+								}
+								A.OpLeft = A.OpLeft.Next;
 							}
-							A.OpLeft = null;
 						}
 						if (B.OpLeft != null) {
-							switch (B.OpLeft.Char) {
-								case '-': B.Value = -B.Value; break;
-								case '+': B.Value = +B.Value; break;
+							B.OpLeft = B.OpLeft.Invert();
+							while (B.OpLeft != null) {
+								switch (B.OpLeft.Char) {
+									case '-': B.Value = -B.Value; break;
+									case '+': B.Value = +B.Value; break;
+									case '*': B.Value *= B.Value; break;
+									case '/': if (this.Value != 0) B.Value /= B.Value; break;
+									case '%': if (this.Value != 0) B.Value %= B.Value; break;
+								}
+								B.OpLeft = B.OpLeft.Next;
 							}
-							B.OpLeft = null;
 						}
 						while (A.Operator != null) {
 							switch (A.Operator.Char) {
 								case '*': A.Value *= B.Value; break;
-								case '/': A.Value /= B.Value; break;
-								case '%': A.Value %= B.Value; break;
+								case '/': if (B.Value != 0) A.Value /= B.Value; break;
+								case '%': if (B.Value != 0) A.Value %= B.Value; break;
 								case '-': A.Value -= B.Value; break;
 								case '+': A.Value += B.Value; break;
 							}
@@ -1220,11 +1232,17 @@ namespace Wholemy {
 					goto Next;
 				}
 				if (this.OpLeft != null) {
-					switch (this.OpLeft.Char) {
-						case '-': this.Value = -this.Value; break;
-						case '+': this.Value = +this.Value; break;
+					this.OpLeft = this.OpLeft.Invert();
+					while (this.OpLeft != null) {
+						switch (this.OpLeft.Char) {
+							case '-': this.Value = -this.Value; break;
+							case '+': this.Value = +this.Value; break;
+							case '*': this.Value *= this.Value; break;
+							case '/': if (this.Value != 0) this.Value /= this.Value; break;
+							case '%': if (this.Value != 0) this.Value %= this.Value; break;
+						}
+						this.OpLeft = this.OpLeft.Next;
 					}
-					this.OpLeft = null;
 				}
 				return this.Value;
 			}
@@ -1277,19 +1295,7 @@ namespace Wholemy {
 								DepthStack = new DepthStack(Char, i, DepthStack);
 								var Op = DepthStackOperator;
 								if (Op != null) {
-									if (Op.Next != null) {
-										var OpOp = Op.Next;
-										if (Op.Index > OpOp.Index + 1 && (Op.Char == '-' || Op.Char == '+')) {
-											DepthStackOperator = OpOp;
-											Op.Next = null;
-											DepthStack.OpLeft = Op;
-										}
-									} else {
-										if (Op.Char == '-' || Op.Char == '+') {
-											DepthStackOperator = null;
-											DepthStack.OpLeft = Op;
-										}
-									}
+									DepthStack.OpLeft = Op;
 								}
 								if (DepthStack.Value != null && DepthStack.Value.Operator == null) DepthStack.Value.Operator = new OperStack('*', i, DepthStack.Depth, null);
 							} else {
@@ -1300,22 +1306,11 @@ namespace Wholemy {
 										Value = new ValueStack(V, i - 1, Depth, Value);
 									}
 								}
-								DepthStack = new DepthStack(Char, i, DepthStack);
 								var Op = Operator;
+								Operator = null;
+								DepthStack = new DepthStack(Char, i, DepthStack);
 								if (Op != null) {
-									if (Op.Next != null) {
-										var OpOp = Op.Next;
-										if (Op.Index > OpOp.Index + 1 && (Op.Char == '-' || Op.Char == '+')) {
-											Operator = OpOp;
-											Op.Next = null;
-											DepthStack.OpLeft = Op;
-										}
-									} else {
-										if (Op.Char == '-' || Op.Char == '+') {
-											Operator = null;
-											DepthStack.OpLeft = Op;
-										}
-									}
+									DepthStack.OpLeft = Op;
 								}
 								if (Value != null && Value.Operator == null) Value.Operator = new OperStack('*', i, Depth, null);
 							}
@@ -1330,6 +1325,11 @@ namespace Wholemy {
 									V = new BugNum(S);
 									if (V.IsVal) {
 										DepthStack.Value = new ValueStack(V, i - 1, Depth, DepthStack.Value);
+										var Op = DepthStack.Operator;
+										if (Op!=null) {
+											DepthStack.Operator = null;
+											DepthStack.Value.OpLeft=Op;
+										}
 									}
 								}
 								DepthStack.IsEnded = true;
@@ -1339,6 +1339,11 @@ namespace Wholemy {
 									V = new BugNum(S);
 									if (V.IsVal) {
 										Value = new ValueStack(V, i - 1, Depth, Value);
+										var Op = Operator;
+										if (Op != null) {
+											Operator = null;
+											Value.OpLeft = Op;
+										}
 									}
 								}
 							}
@@ -1358,10 +1363,10 @@ namespace Wholemy {
 										var Op = DepthStack.Operator;
 										DepthStack.Operator = null;
 										DepthStack.Value = new ValueStack(V, i - 1, Depth, DepthStack.Value);
-										if (Op != null && (Op.Char == '-' || Op.Char == '+')) { DepthStack.Value.OpLeft = Op; }
+										if (Op != null) { DepthStack.Value.OpLeft = Op; }
 									}
 								}
-								if (DepthStack.Value != null && DepthStack.Value.Depth == Depth) {
+								if (DepthStack.Value != null) {
 									DepthStack.Value.Operator = new OperStack(Char, i, Depth, DepthStack.Value.Operator);
 								} else {
 									DepthStack.Operator = new OperStack(Char, i, Depth, DepthStack.Operator);
@@ -1374,10 +1379,10 @@ namespace Wholemy {
 										var Op = Operator;
 										Operator = null;
 										Value = new ValueStack(V, i - 1, Depth, Value);
-										if (Op != null && (Op.Char == '-' || Op.Char == '+')) { Value.OpLeft = Op; }
+										if (Op != null) { Value.OpLeft = Op; }
 									}
 								}
-								if (Value != null && Value.Depth == Depth) {
+								if (Value != null) {
 									Value.Operator = new OperStack(Char, i, Depth, Value.Operator);
 								} else {
 									Operator = new OperStack(Char, i, Depth, Operator);
@@ -1394,15 +1399,11 @@ namespace Wholemy {
 						V = DepthStackValue.End();
 						if (V.IsVal) {
 							if (DepthStack != null) {
-								var Op = DepthStack.Operator;
-								DepthStack.Operator = null;
 								DepthStack.Value = new ValueStack(V, i - 1, Depth, DepthStack.Value);
-								if (Op != null && (Op.Char == '-' || Op.Char == '+')) { DepthStack.Value.OpLeft = Op; }
+								//if (Op != null) { DepthStack.Value.OpLeft = Op; }
 							} else {
-								var Op = Operator;
-								Operator = null;
 								Value = new ValueStack(V, i - 1, Depth, Value);
-								if (Op != null && (Op.Char == '-' || Op.Char == '+')) { Value.OpLeft = Op; }
+								//if (Op != null) { Value.OpLeft = Op; }
 							}
 						}
 					}
@@ -1416,7 +1417,7 @@ namespace Wholemy {
 						var Op = DepthStack.Operator;
 						DepthStack.Operator = null;
 						DepthStack.Value = new ValueStack(V, Chars.Length - 1, Depth, DepthStack.Value);
-						if (Op != null && (Op.Char == '-' || Op.Char == '+')) { DepthStack.Value.OpLeft = Op; }
+						if (Op != null) { DepthStack.Value.OpLeft = Op; }
 					}
 				}
 				DepthStack.IsEnded = true;
@@ -1428,7 +1429,7 @@ namespace Wholemy {
 						var Op = Operator;
 						Operator = null;
 						Value = new ValueStack(V, Chars.Length - 1, Depth, Value);
-						if (Op != null && (Op.Char == '-' || Op.Char == '+')) { Value.OpLeft = Op; }
+						if (Op != null) { Value.OpLeft = Op; }
 					}
 				}
 			}
@@ -1452,7 +1453,7 @@ namespace Wholemy {
 				}
 			}
 			if (Value != null)
-				TextResult.Text = Value.End().ToString();
+			TextResult.Text = Value.End().ToString();
 			else TextResult.Text = "";
 		}
 		#region #method# N_Enter(sender, e) 
