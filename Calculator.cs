@@ -1183,18 +1183,29 @@ namespace Wholemy {
 				}
 				return R;
 			}
+			public class St {
+				public BugNum Value;
+				public St Below;
+				public St(BugNum Value, St Below) {
+					this.Value = Value;
+					this.Below = Below;
+				}
+			}
 			public BugNum Apply(BugNum V) {
 				var OpLeft = this.Invert();
-				var O = OpLeft.Next == null;
+				var O = false;
 				var I = 0;
+				St S = null;
 				while (OpLeft != null) {
 					switch (OpLeft.Char) {
-						case '!': V = -V; break;
-						case '-': if (V >= 0) V = -V; break;
-						case '+': if (I == 0) { if (V < 0) V = +V; } else { V += V; } break;
-						case '*': V *= V; break;
-						case '/': if (V != 0) V /= V; break;
-						case '%': if (V != 0) V %= V; break;
+						case '!': if (O) { O = !O; } else { V = -V; } break;
+						case '-': if (O) { V -= 1; } else { if (I == 0) { if (V >= 0) V = -V; } else { if (S != null) { if (S.Value != 0) V -= S.Value; S = S.Below; } else { V -= V; } } } break;
+						case '+': if (O) { V += 1; } else { if (I == 0) { if (V < 0) V = +V; } else { S = new St(V, S); V += V; } } break;
+						case '*': S = new St(V, S); V *= V; break;
+						case '/': if (S != null) { if (S.Value != 0) V /= S.Value; S = S.Below; } else { if (V != 0) V /= V; } break;
+						case '%': if (S != null) { if (S.Value != 0) V %= S.Value; S = S.Below; } else { if (V != 0) V %= V; } break;
+						case '=': O = !O; I = 0; S = null; break;
+						case '?': break;
 					}
 					OpLeft = OpLeft.Next;
 					I++;
@@ -1257,9 +1268,11 @@ namespace Wholemy {
 					if (A != null) {
 						if (A.OpLeft != null) {
 							A.Value = A.OpLeft.Apply(A.Value);
+							A.OpLeft = null;
 						}
 						if (B.OpLeft != null) {
 							B.Value = B.OpLeft.Apply(B.Value);
+							B.OpLeft = null;
 						}
 						while (A.Operator != null) {
 							switch (A.Operator.Char) {
@@ -1285,6 +1298,7 @@ namespace Wholemy {
 				}
 				if (this.OpLeft != null) {
 					this.Value = this.OpLeft.Apply(this.Value);
+					this.OpLeft = null;
 				}
 				switch (Word) {
 					case "sqrt": this.Value = BugNum.Sqrt(this.Value); break;
@@ -1450,7 +1464,9 @@ namespace Wholemy {
 					case '*':
 					case '-':
 					case '+':
-					case '!': {
+					case '!':
+					case '?':
+					case '=': {
 							if (DepthStack != null && DepthStack.IsEnded == false) {
 								if (Start < i) {
 									S = Chars.Substring(Start, i - Start);
@@ -1522,7 +1538,7 @@ namespace Wholemy {
 							} else {
 								OpWord = null;
 							}
-							if(OpWord=="pi") {
+							if (OpWord == "pi") {
 								if (DepthStack != null) {
 									var Op = DepthStack.Operator;
 									DepthStack.Operator = null;
@@ -1562,6 +1578,7 @@ namespace Wholemy {
 						V = DepthStackValue.End(Word);
 						if (OpLeft != null) {
 							V = OpLeft.Apply(V);
+							OpLeft = null;
 						}
 						if (V.IsVal) {
 							if (DepthStack != null) {
@@ -1621,9 +1638,10 @@ namespace Wholemy {
 				DepthStack = DepthStack.Next;
 				if (DepthStackValue != null) {
 					V = DepthStackValue.End(Word);
-					
+
 					if (OpLeft != null) {
 						V = OpLeft.Apply(V);
+						OpLeft = null;
 					}
 					if (V.IsVal) {
 						if (DepthStack != null) {
