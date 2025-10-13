@@ -9,7 +9,9 @@ using System.Windows.Media;
 namespace Wholemy {
 	#region #class# Calculator 
 	public class Calculator : System.Windows.Application {
-
+		public static bool OpLeftMulEnable = true;
+		public static bool OpLeftMulAddToStack = false;
+		public static bool OpLeftMulValInStack = true;
 		public const string ResRootPath = "pack://application:,,,/Wholemy.Calculator;component/";
 		public readonly static string ResFontsPath = ResRootPath + "fonts/";
 		public static int Weigf = 4;
@@ -1200,8 +1202,14 @@ namespace Wholemy {
 					switch (OpLeft.Char) {
 						case '!': if (O) { O = !O; } else { V = -V; } break;
 						case '-': if (O) { V -= 1; } else { if (I == 0) { if (V >= 0) V = -V; } else { if (S != null) { if (S.Value != 0) V -= S.Value; S = S.Below; } else { V -= V; } } } break;
-						case '+': if (O) { V += 1; } else { if (I == 0) { if (V < 0) V = +V; } else { S = new St(V, S); V += V; } } break;
-						case '*': S = new St(V, S); V *= V; break;
+						case '+': if (O) { S = new St(V, S); V += 1; } else { if (I == 0) { if (V < 0) V = +V; } else { S = new St(V, S); V += V; } } break;
+						case '*': S = new St(V, S); V *= V;
+							//if (Calculator.OpLeftMulEnable) {
+							//	var SS = S;
+							//	if (Calculator.OpLeftMulAddToStack) { S = new St(V, S); }
+							//	if (Calculator.OpLeftMulValInStack) { if(SS != null) V *= SS.Value; } else { V *= V; }
+							//}
+							break;
 						case '/': if (S != null) { if (S.Value != 0) V /= S.Value; S = S.Below; } else { if (V != 0) V /= V; } break;
 						case '%': if (S != null) { if (S.Value != 0) V %= S.Value; S = S.Below; } else { if (V != 0) V %= V; } break;
 						case '=': O = !O; I = 0; S = null; break;
@@ -1306,6 +1314,7 @@ namespace Wholemy {
 					case "sin": this.Value = BugNum.TSin(this.Value); break;
 					case "tan": this.Value = BugNum.TTan(this.Value); break;
 					case "atan": this.Value = BugNum.TAtan(this.Value); break;
+					case "atanoftan": this.Value = BugNum.TAtanOfTan(this.Value); break;
 					case "pos": if (this.Value < 0) this.Value = +this.Value; break;
 					case "neg": if (this.Value >= 0) this.Value = -this.Value; break;
 					case "not": this.Value = -this.Value; break;

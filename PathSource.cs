@@ -84,7 +84,7 @@
 		private static int SinCosTanGen() {
 			uint P = 3;
 			var A = new double[200];
-			var B = new uint[200][];
+			//var B = new uint[200][];
 			var I = 0;
 			var FA = new uint[100];
 			var FF = 2ul;

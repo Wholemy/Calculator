@@ -9,6 +9,44 @@
 	/// структуры с другим именованием полностью и дополнить методы конвертирования значений из других структур)
 	/// </remarks>
 	public struct BugNum {
+		#region #field# SinCosTanFor 
+		/// <summary>Указывает использованное значение MaxDepth для генерации)</summary>
+		private static int SinCosTanFor;
+		#endregion
+		#region #field# SinCosTanMul 
+		/// <summary>Массив пар множителей единицы, в двое больше чем максимальная длина)</summary>
+		private static BugNum[] SinCosTanMul;
+		#endregion
+		#region #field# SinCosTanMax 
+		/// <summary>Максимальная вычисленная длина множителей)</summary>
+		private static int SinCosTanMax;
+		#endregion
+		#region #method# SinCosTanGen 
+		/// <summary>Генератор опорных множителей для синусов, косинусов и тангенсов)</summary>
+		private static int SinCosTanGen() {
+			uint P = 3;
+			var A = new BugNum[200];
+			var I = 0;
+			BugInt FF = 2ul;
+			var FI = 0;
+			var J = 0;
+			while (I < 100) {
+				FF *= (P++ * P++);
+				BugNum XA = BugNum.One / FF;
+				FF *= (P++ * P++);
+				BugNum XB = BugNum.One / FF;
+				if (XA == 0 || XB == 0) break;
+				A[J++] = XA;
+				A[J++] = XB;
+				I++;
+			}
+			SinCosTanMax = I;
+			System.Array.Resize(ref A, J);
+			SinCosTanMul = A;
+			SinCosTanFor = maxDepth;
+			return I;
+		}
+		#endregion
 		static BugNum() { InitDepthConsts(); }
 		public static readonly BugNum Zer = new BugNum() { Numer = 0, Venom = 1 };
 		public static readonly BugNum One = new BugNum() { Numer = 1, Venom = 1 };
@@ -213,11 +251,11 @@
 				var Venom = this.Venom;
 				var Minus = false;
 				if (Numer != 0 && Venom != 0) {
-					if(Numer<0) { Numer = -Numer; Minus = true; }
+					if (Numer < 0) { Numer = -Numer; Minus = true; }
 					var Gcd = BugInt.Gcd(Numer, Venom);
 					if (Gcd > 1) { Numer /= Gcd; Venom /= Gcd; }
 				}
-				if(Minus) Numer=-Numer;
+				if (Minus) Numer = -Numer;
 				return new BugNum(Numer, Venom);
 			}
 		}
@@ -816,6 +854,31 @@
 			var M = (x > PId2 && x <= PId2x3);
 			var XX = x * x;
 			var XXX = XX;
+			var R = 1 - (XX / 2);
+			var I = 0;
+			var J = 0;
+			var Max = SinCosTanMax;
+			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
+			var A = new BugNum[Max];
+			var Mul = SinCosTanMul;
+			while (I < Max) {
+				var XXA = XXX *= XX;
+				var XXB = XXX *= XX;
+				if (XXA == 0 && XXB == 0) break;
+				XXA *= Mul[J++]; XXB *= Mul[J++];
+				if (XXA == 0 && XXB == 0) break;
+				A[I++] = XXA - XXB;
+			}
+			BugNum RR = 0;
+			if (I > 0) {
+				RR = A[--I];
+				while (I > 0) {
+					RR += A[--I];
+				}
+			}
+			R += RR;
+			//var XX = x * x;
+			//var XXX = XX;
 			//var R = 1 - (XX / 2);
 			//R += (XXX *= XX) / 24;
 			//R -= (XXX *= XX) / 720;
@@ -826,17 +889,17 @@
 			//R += (XXX *= XX) / 20922789888000;
 			//R -= (XXX *= XX) / 6402373705728000;
 			//R += (XXX *= XX) / 2432902008176640000;
-			var F = new BugInt(2);
-			var U = -1;
-			var R = 1 + (XX / F * U);
-			uint P = 3;
-			BugNum RR = 0;
-			while (XXX != 0 && RR != R && F < maxVenom) {
-				RR = R;
-				XXX *= XX;
-				F *= (P++ * P++); U = -U;
-				R += XXX / F * U;
-			}
+			//var F = new BugInt(2);
+			//var U = -1;
+			//var R = 1 + (XX / F * U);
+			//uint P = 3;
+			//BugNum RR = 0;
+			//while (XXX != 0 && RR != R && F < maxVenom) {
+			//	RR = R;
+			//	XXX *= XX;
+			//	F *= (P++ * P++); U = -U;
+			//	R += XXX / F * U;
+			//}
 			if (R < 0) R = -R;
 			//if (M) R = -R;
 			if (!S) { C = R; S = true; goto Next; }
@@ -902,6 +965,31 @@
 			var M = (X > PId2 && X <= PId2x3);
 			var XX = X * X;
 			var XXX = XX;
+			var R = 1 - (XX / 2);
+			var I = 0;
+			var J = 0;
+			var Max = SinCosTanMax;
+			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
+			var A = new BugNum[Max];
+			var Mul = SinCosTanMul;
+			while (I < Max) {
+				var XXA = XXX *= XX;
+				var XXB = XXX *= XX;
+				if (XXA == 0 && XXB == 0) break;
+				XXA *= Mul[J++]; XXB *= Mul[J++];
+				if (XXA == 0 && XXB == 0) break;
+				A[I++] = XXA - XXB;
+			}
+			BugNum RR = 0;
+			if (I > 0) {
+				RR = A[--I];
+				while (I > 0) {
+					RR += A[--I];
+				}
+			}
+			R += RR;
+			//var XX = X * X;
+			//var XXX = XX;
 			//var R = 1 - (XX / 2);
 			//R += (XXX *= XX) / 24;
 			//R -= (XXX *= XX) / 720;
@@ -912,17 +1000,17 @@
 			//R += (XXX *= XX) / 20922789888000;
 			//R -= (XXX *= XX) / 6402373705728000;
 			//R += (XXX *= XX) / 2432902008176640000;
-			var F = new BugInt(2);
-			var U = -1;
-			var R = 1 + (XX / F * U);
-			uint P = 3;
-			BugNum RR = 0;
-			while (XXX != 0 && RR != R && F < maxVenom) {
-				RR = R;
-				XXX *= XX;
-				F *= (P++ * P++); U = -U;
-				R += XXX / F * U;
-			}
+			//var F = new BugInt(2);
+			//var U = -1;
+			//var R = 1 + (XX / F * U);
+			//uint P = 3;
+			//BugNum RR = 0;
+			//while (XXX != 0 && RR != R && F < maxVenom) {
+			//	RR = R;
+			//	XXX *= XX;
+			//	F *= (P++ * P++); U = -U;
+			//	R += XXX / F * U;
+			//}
 			if (R < 0) R = -R;
 			if (M) R = -R;
 			return R;
@@ -939,6 +1027,31 @@
 			var M = (X > PId2 && X <= PId2x3);
 			var XX = X * X;
 			var XXX = XX;
+			var R = 1 - (XX / 2);
+			var I = 0;
+			var J = 0;
+			var Max = SinCosTanMax;
+			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
+			var A = new BugNum[Max];
+			var Mul = SinCosTanMul;
+			while (I < Max) {
+				var XXA = XXX *= XX;
+				var XXB = XXX *= XX;
+				if (XXA == 0 && XXB == 0) break;
+				XXA *= Mul[J++]; XXB *= Mul[J++];
+				if (XXA == 0 && XXB == 0) break;
+				A[I++] = XXA - XXB;
+			}
+			BugNum RR = 0;
+			if (I > 0) {
+				RR = A[--I];
+				while (I > 0) {
+					RR += A[--I];
+				}
+			}
+			R += RR;
+			//var XX = X * X;
+			//var XXX = XX;
 			//var R = 1 - (XX / 2);
 			//R += (XXX *= XX) / 24;
 			//R -= (XXX *= XX) / 720;
@@ -949,17 +1062,17 @@
 			//R += (XXX *= XX) / 20922789888000;
 			//R -= (XXX *= XX) / 6402373705728000;
 			//R += (XXX *= XX) / 2432902008176640000;
-			var F = new BugInt(2);
-			var U = -1;
-			var R = 1 + (XX / F * U);
-			uint P = 3;
-			BugNum RR = 0;
-			while (XXX != 0 && RR != R && F < maxVenom) {
-				RR = R;
-				XXX *= XX;
-				F *= (P++ * P++); U = -U;
-				R += XXX / F * U;
-			}
+			//var F = new BugInt(2);
+			//var U = -1;
+			//var R = 1 + (XX / F * U);
+			//uint P = 3;
+			//BugNum RR = 0;
+			//while (XXX != 0 && RR != R && F < maxVenom) {
+			//	RR = R;
+			//	XXX *= XX;
+			//	F *= (P++ * P++); U = -U;
+			//	R += XXX / F * U;
+			//}
 			if (R < 0) R = -R;
 			if (M) R = -R;
 			return R;
@@ -980,6 +1093,31 @@
 			var M = (x > PId2 && x <= PId2x3);
 			var XX = x * x;
 			var XXX = XX;
+			var R = 1 - (XX / 2);
+			var I = 0;
+			var J = 0;
+			var Max = SinCosTanMax;
+			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
+			var A = new BugNum[Max];
+			var Mul = SinCosTanMul;
+			while (I < Max) {
+				var XXA = XXX *= XX;
+				var XXB = XXX *= XX;
+				if (XXA == 0 && XXB == 0) break;
+				XXA *= Mul[J++]; XXB *= Mul[J++];
+				if (XXA == 0 && XXB == 0) break;
+				A[I++] = XXA - XXB;
+			}
+			BugNum RR = 0;
+			if (I > 0) {
+				RR = A[--I];
+				while (I > 0) {
+					RR += A[--I];
+				}
+			}
+			R += RR;
+			//var XX = x * x;
+			//var XXX = XX;
 			//var R = 1 - (XX / 2);
 			//R += (XXX *= XX) / 24;
 			//R -= (XXX *= XX) / 720;
@@ -990,17 +1128,17 @@
 			//R += (XXX *= XX) / 20922789888000;
 			//R -= (XXX *= XX) / 6402373705728000;
 			//R += (XXX *= XX) / 2432902008176640000;
-			var F = new BugInt(2);
-			var U = -1;
-			var R = 1 + (XX / F * U);
-			uint P = 3;
-			BugNum RR = 0;
-			while (XXX != 0 && RR != R && F < maxVenom) {
-				RR = R;
-				XXX *= XX;
-				F *= (P++ * P++); U = -U;
-				R += XXX / F * U;
-			}
+			//var F = new BugInt(2);
+			//var U = -1;
+			//var R = 1 + (XX / F * U);
+			//uint P = 3;
+			//BugNum RR = 0;
+			//while (XXX != 0 && RR != R && F < maxVenom) {
+			//	RR = R;
+			//	XXX *= XX;
+			//	F *= (P++ * P++); U = -U;
+			//	R += XXX / F * U;
+			//}
 			if (R < 0) R = -R;
 			if (M) R = -R;
 			if (!S) { C = R; S = true; goto Next; }
@@ -1023,6 +1161,31 @@
 			var M = (x > PId2 && x <= PId2x3);
 			var XX = x * x;
 			var XXX = XX;
+			var R = 1 - (XX / 2);
+			var I = 0;
+			var J = 0;
+			var Max = SinCosTanMax;
+			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
+			var A = new BugNum[Max];
+			var Mul = SinCosTanMul;
+			while (I < Max) {
+				var XXA = XXX *= XX;
+				var XXB = XXX *= XX;
+				if (XXA == 0 && XXB == 0) break;
+				XXA *= Mul[J++]; XXB *= Mul[J++];
+				if (XXA == 0 && XXB == 0) break;
+				A[I++] = XXA - XXB;
+			}
+			BugNum RR = 0;
+			if (I > 0) {
+				RR = A[--I];
+				while (I > 0) {
+					RR += A[--I];
+				}
+			}
+			R += RR;
+			//var XX = x * x;
+			//var XXX = XX;
 			//var R = 1 - (XX / 2);
 			//R += (XXX *= XX) / 24;
 			//R -= (XXX *= XX) / 720;
@@ -1033,18 +1196,18 @@
 			//R += (XXX *= XX) / 20922789888000;
 			//R -= (XXX *= XX) / 6402373705728000;
 			//R += (XXX *= XX) / 2432902008176640000;
-			var F = new BugInt(2);
-			var U = -1;
-			var R = 1 + (XX / F * U);
-			uint P = 3;
-			var I = 0;
-			BugNum RR = 0;
-			while (XXX != 0 && RR != R && F < maxVenom) {
-				RR = R;
-				XXX *= XX;
-				F *= (P++ * P++); U = -U;
-				R += XXX / F * U;
-			}
+			//var F = new BugInt(2);
+			//var U = -1;
+			//var R = 1 + (XX / F * U);
+			//uint P = 3;
+			//var I = 0;
+			//BugNum RR = 0;
+			//while (XXX != 0 && RR != R && F < maxVenom) {
+			//	RR = R;
+			//	XXX *= XX;
+			//	F *= (P++ * P++); U = -U;
+			//	R += XXX / F * U;
+			//}
 			if (R < 0) R = -R;
 			if (M) R = -R;
 			if (!S) { C = R; S = true; goto Next; }
