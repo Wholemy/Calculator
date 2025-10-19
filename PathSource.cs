@@ -121,6 +121,7 @@
 		#region #method# TAtan(X) 
 		/// <summary>Функция возвращает обратный тангенс угла)</summary>
 		public static double TAtan(double X) {
+			if (X == 0) return 0;
 			var M = false;
 			if (X < 0) { X = -X; M = true; }
 			var L = false;

@@ -418,23 +418,37 @@
 				Sign += BugInt.DivMod(Numer, Venom, out var Num).ToString();
 				Numer = Num * maxVenom / Venom;
 				if (Numer > 0) {
-					Sign += '.';
 					var Decimal = "";
 					var Zeros = maxDepth - Numer.Digits;
 					if (Zeros > 0) Decimal += new string('0', Zeros);
 					Zeros = Numer.Zerone; if (Zeros < 0) Zeros = -Zeros;
 					if (Zeros > 0) Numer /= BugInt.Pow(10u, Zeros);
 					Decimal += Numer.ToString();
-					if (Decimal.Length > maxChars) Decimal = Decimal.Substring(0, maxChars);
-					Sign += Decimal;
+					if (Decimal.Length > maxChars) {
+						Decimal = Decimal.Substring(0, maxChars);
+						Zeros = Decimal.Length;
+						while (Zeros > 0 && Decimal[Zeros-1]=='0') Zeros--;
+						if(Zeros < Decimal.Length) Decimal = Decimal.Substring(0, Zeros);
+					}
+					if(Decimal.Length>0) {
+						Sign += '.';
+						Sign += Decimal;
+					}
 				}
 			} else {
 				Venom = -Venom;
 				Sign += Numer.ToString();
-				Sign += '.';
 				var Decimal = Venom.ToString();
-				if (Decimal.Length > maxChars) Decimal = Decimal.Substring(0, maxChars);
-				Sign += Decimal;
+				if (Decimal.Length > maxChars) {
+					Decimal = Decimal.Substring(0, maxChars);
+					var Zeros = Decimal.Length;
+					while (Zeros > 0 && Decimal[Zeros - 1] == '0') Zeros--;
+					if (Zeros < Decimal.Length) Decimal = Decimal.Substring(0, Zeros);
+				}
+				if (Decimal.Length > 0) {
+					Sign += '.';
+					Sign += Decimal;
+				}
 			}
 			return Sign;
 		}
@@ -881,6 +895,7 @@
 		#region #method# TAtanOfTan(X) 
 		/// <summary>Функция возвращает обратный тангенс угла с проверкой и уточнением тангенсом)</summary>
 		public static BugNum TAtanOfTan(BugNum X) {
+			if (X == 0) return 0;
 			var M = false;
 			if (X < 0) { X = -X; M = true; }
 			var RX = X;
@@ -911,43 +926,64 @@
 			//* 1
 			R += (C / B) * X;
 			if (Y > 0) {
-				//X = Y * new BugNum(1, 8);
-				//Y = 0; goto Next;
-				R += Atan0125[--Y];
+				X = Y * new BugNum(1, 8);
+				Y = 0; goto Next;
+				//R += Atan0125[--Y];
 			}
 			if (L) R = PId2 - R;
-			var c = 5u;
-			var b = 3u;
-			var a = 1u;
-			var T = TOfTan(R);
-			var P = R;
-			var I = new BugNum(1, 10);
-			while (T != RX) {
-				if (T < RX) {
-					var RI = R + I * c;
-					var TT = TOfTan(RI);
-					if (TT > RX) {
-						if (c == 1) {
-							I /= 10; c = 5; b = 3;
-						} else { c = b; b = a; }
-					} else {
-						R = RI;
-						T = TT;
-					}
-				} else {
-					var RI = R - I * c;
-					var TT = TOfTan(RI);
-					if (TT < RX) {
-						if (c == 1) {
-							I /= 10; c = 5; b = 3;
-						} else { c = b; b = a; }
-					} else {
-						R = RI;
-						T = TT;
-					}
-				}
-				if (I == 0) { break; }
+			var t = TOfTan(R);
+			BugNum tt = 0;
+			var ttt = RX - t;
+			while (ttt > 0) {
+				tt += ttt;
+				R = TAtan(RX + tt);
+				t = TOfTan(R);
+				ttt = RX - t;
 			}
+			while (ttt < 0) {
+				tt += ttt;
+				R = TAtan(RX + tt);
+				t = TOfTan(R);
+				ttt = RX - t;
+			}
+			while (ttt > 0) {
+				tt += ttt;
+				R = TAtan(RX + tt);
+				t = TOfTan(R);
+				ttt = RX - t;
+			}
+			//var c = 5u;
+			//var b = 3u;
+			//var a = 1u;
+			//var T = TOfTan(R);
+			//var P = R;
+			//var I = new BugNum(1, 10);
+			//while (T != RX) {
+			//	if (T < RX) {
+			//		var RI = R + I * c;
+			//		var TT = TOfTan(RI);
+			//		if (TT > RX) {
+			//			if (c == 1) {
+			//				I /= 10; c = 5; b = 3;
+			//			} else { c = b; b = a; }
+			//		} else {
+			//			R = RI;
+			//			T = TT;
+			//		}
+			//	} else {
+			//		var RI = R - I * c;
+			//		var TT = TOfTan(RI);
+			//		if (TT < RX) {
+			//			if (c == 1) {
+			//				I /= 10; c = 5; b = 3;
+			//			} else { c = b; b = a; }
+			//		} else {
+			//			R = RI;
+			//			T = TT;
+			//		}
+			//	}
+			//	if (I == 0) { break; }
+			//}
 			return M ? -R : R;
 		}
 		#endregion
@@ -993,6 +1029,7 @@
 		/// <summary>Функция возвращает обратный тангенс угла)</summary>
 		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static BugNum TAtan(BugNum X) {
+			if (X == 0) return 0;
 			var M = false;
 			if (X < 0) { X = -X; M = true; }
 			var L = false;
@@ -1011,9 +1048,9 @@
 			R += (C / B) * X;
 			//R += TCos(X) * X;
 			if (Y > 0) {
-				//X = Y * new BugNum(1, 8);
-				//Y = 0; goto Next;
-				R += Atan0125[--Y];
+				X = Y * new BugNum(1, 8);
+				Y = 0; goto Next;
+				//R += Atan0125[--Y];
 			}
 			if (L) R = PId2 - R;
 			return M ? -R : R;
