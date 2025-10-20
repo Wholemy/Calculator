@@ -118,14 +118,16 @@
 			return I;
 		}
 		#endregion
-		#region #method# TAtan(X) 
+		#region #method# TAtanOfTan(X) 
 		/// <summary>Функция возвращает обратный тангенс угла)</summary>
-		public static double TAtan(double X) {
+		public static double TAtanOfTan(double X) {
 			if (X == 0) return 0;
 			var M = false;
 			if (X < 0) { X = -X; M = true; }
+			var RX = X;
 			var L = false;
 			var Y = 0;
+			var R = 0.0;
 			if (X >= 8.0) { L = true; X = 1.0 / X; goto Next; }
 			Y = (int)(X * 8);
 			if (Y < 0) Y++;
@@ -135,9 +137,83 @@
 			XX = X * X;
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
-			var R = (C / B) * X;
-			if (Y > 0) R += Atan0125[--Y];
+			R += (C / B) * X;
+			if (Y > 0) {
+				R += Atan0125[--Y];
+			}
 			if (L) R = (System.Math.PI / 2.0) - R;
+			var tan = TTan(R);
+			var dif = RX - tan;
+			var sum = 0.0;
+			var posdif = +dif;
+			while (dif != 0) {
+				sum += TTan(dif);
+				var RR = TAtan1(RX + sum);
+				tan = TTan(RR);
+				dif = RX - tan;
+				var nexdif = +dif;
+				if (nexdif < posdif) {
+					R = RR;
+					posdif = nexdif;
+				} else {
+					break;
+				}
+			}
+			if (R < 0) R = -R;
+			return M ? -R : R;
+		}
+		#endregion
+		#region #method# TAtanOfTan2(Y, X) 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+		public static double TAtanOfTan2(double Y, double X) {
+			if (X == 0.0) {
+				if (Y == 0.0) return 0.0;
+				else if (Y > 0) return System.Math.PI / 2.0; else return -(System.Math.PI / 2.0);
+			}
+			var A = TAtanOfTan(Y / X);
+			if (X < 0.0) {
+				if (Y >= 0.0) A += System.Math.PI; else A -= System.Math.PI;
+			}
+			return A;
+		}
+		#endregion
+		#region #method# TAtan(X) 
+		/// <summary>Функция возвращает обратный тангенс угла)</summary>
+		public static double TAtan(double X) {
+			if (X == 0) return 0;
+			var M = false;
+			if (X < 0) { X = -X; M = true; }
+			var L = false;
+			var Y = 0;
+			var R = 0.0;
+			if (X >= 8.0) { L = true; X = 1.0 / X; goto Next; }
+			Y = (int)(X * 8);
+			if (Y < 0) Y++;
+			var XX = Y / 8.0;
+			X = (X - XX) / (X * XX + 1);
+		Next:
+			XX = X * X;
+			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
+			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
+			R += (C / B) * X;
+			if (Y > 0) {
+				R += Atan0125[--Y];
+			}
+			if (L) R = (System.Math.PI / 2.0) - R;
+			return M ? -R : R;
+		}
+		#endregion
+		#region #private# #method# TAtan1(X) 
+		private static double TAtan1(double X) {
+			if (X == 0) return 0;
+			var M = false;
+			if (X < 0) { X = -X; M = true; }
+			X = 1.0 / X;
+			var XX = X * X;
+			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
+			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
+			var R = (C / B) * X;
+			R = (System.Math.PI / 2.0) - R;
 			return M ? -R : R;
 		}
 		#endregion

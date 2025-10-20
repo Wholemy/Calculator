@@ -385,9 +385,6 @@ namespace Wholemy {
 		public readonly Button ButtonYXatanOfTanR = new Button("R = AtanOfTan(X)", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
-		public readonly Button ButtonXtestAtanR = new Button("R = TestAtan(X)", Font277.Instance, 20) {
-			Margin = new System.Windows.Thickness(8, 8, 0, 0),
-		};
 		public readonly Button ButtonPI = new Button("R = PI(10K)", Font277.Instance, 20) {
 			Margin = new System.Windows.Thickness(8, 8, 0, 0),
 		};
@@ -437,17 +434,8 @@ namespace Wholemy {
 			PanelMain.Children.Add(ButtonYXatan2R);
 			ButtonYXatanOfTanR.Click += ButtonYXatanOfTanR_Click;
 			PanelMain.Children.Add(ButtonYXatanOfTanR);
-			ButtonXtestAtanR.Click += ButtonXtestAtanR_Click;
-			PanelMain.Children.Add(ButtonXtestAtanR);
 			ButtonPI.Click += ButtonPI_Click;
 			PanelMain.Children.Add(ButtonPI);
-		}
-
-		private void ButtonXtestAtanR_Click(object sender, RoutedEventArgs e) {
-			try {
-				this.Parent.R.Number = BugNum.TestAtan(this.Parent.X.Number);
-				this.Parent.R.Visibility = Visibility.Visible;
-			} catch { }
 		}
 
 		private void ButtonD_Click(object sender, RoutedEventArgs e) {

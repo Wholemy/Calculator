@@ -12,36 +12,6 @@
 		#region #field# Atan0125 
 		public static BugNum[] Atan0125;
 		#endregion
-		#region #method# TestAtan(X) 
-		/// <summary>Функция возвращает обратный тангенс угла)</summary>
-		public static BugNum TestAtan(BugNum x) {
-			BugNum PI12 = PI / 12;
-			BugNum PI6 = PI / 6;
-			BugNum PI2 = PId2;
-			BugNum SQRT3 = Sqrt(3);
-			var Minus = false;
-			if (x < 0) { x = -x; Minus = true; }
-			var Inver = false;
-			if (x > 1) { x = 1 / x; Inver = true; }
-			var sp = 0;
-			BugNum a = 0;
-			while (x > PI12) {
-				sp++; a = x + SQRT3; a = 1 / a; x *= SQRT3; x -= 1; x *= a;
-			}
-			var xx = x * x;
-			a = ((new BugNum("0.55913709") / (xx + new BugNum("1.4087812"))) + new BugNum("0.6031057899999999999999999999999999999999999999999999999999999999999999") - (new BugNum("0.0516045399999999999999999999999999999999999999999999999999999999999999") * xx)) * x; // 0.60310578999999997 // 0.051604539999999997
-																																																																																																																																			//var xx_2 = BugNum.Pow(xx, -2);
-																																																																																																																																			//var _10_4 = BugNum.Pow(10, -4);
-																																																																																																																																			//var w = (-(new BugNum(75) / 77) * BugNum.Pow(xx, -2)) + (new BugNum(3375) / 77) * BugNum.Pow(10, -4);
-																																																																																																																																			//var ww = (new BugNum(4*5)/ (7*7*9)) / (new BugNum(43) / ((7*11) + xx_2));
-																																																																																																																																			//a = 1 - (xx / 3) + ((xx / 5) / ((new BugNum(5) / 7 + BugNum.Pow(xx, -2)) - ww));
-																																																																																																																																			//a = xx * x; 
-			while (sp > 0) { a += PI6; sp--; }
-			if (Inver) a = PI2 - a;
-			if (Minus) a = -a;
-			return a;
-		}
-		#endregion
 		#region #field# SinCosTanFor 
 		/// <summary>Указывает использованное значение MaxDepth для генерации)</summary>
 		private static int SinCosTanFor;
@@ -427,10 +397,10 @@
 					if (Decimal.Length > maxChars) {
 						Decimal = Decimal.Substring(0, maxChars);
 						Zeros = Decimal.Length;
-						while (Zeros > 0 && Decimal[Zeros-1]=='0') Zeros--;
-						if(Zeros < Decimal.Length) Decimal = Decimal.Substring(0, Zeros);
+						while (Zeros > 0 && Decimal[Zeros - 1] == '0') Zeros--;
+						if (Zeros < Decimal.Length) Decimal = Decimal.Substring(0, Zeros);
 					}
-					if(Decimal.Length>0) {
+					if (Decimal.Length > 0) {
 						Sign += '.';
 						Sign += Decimal;
 					}
@@ -892,6 +862,19 @@
 		#region #field# TAtanArray 
 		public static BugNum[] TAtanArray;
 		#endregion
+		#region #method# TAtanOfTan2(Y, X) 
+		public static BugNum TAtanOfTan2(BugNum Y, BugNum X) {
+			if (X == 0) {
+				if (Y == 0) return 0;
+				else if (Y > 0) return PId2; else return -PId2;
+			}
+			var A = TAtanOfTan(Y / X);
+			if (X < 0) {
+				if (Y >= 0) A += PI; else A -= PI;
+			}
+			return A;
+		}
+		#endregion
 		#region #method# TAtanOfTan(X) 
 		/// <summary>Функция возвращает обратный тангенс угла с проверкой и уточнением тангенсом)</summary>
 		public static BugNum TAtanOfTan(BugNum X) {
@@ -912,129 +895,108 @@
 			XX = X * X;
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
-			//(((((11 * 15 * 15 * 29 * 193) *
-			//1 + (9 * 11 * 13 * 15 * 17 * 5 * 132)) *
-			//1 + (7 * 9 * 11 * 13 * 15 * 6 * 7 * 157)) *
-			//1 + (5 * 7 * 9 * 11 * 13 * 15 * 17 * 116)) *
-			//1 + (3 * 5 * 7 * 9 * 11 * 13 * 15 * 17 * 19)) /
-			//((((((3 * 5 * 7 * 9 * 3 * 5 * 7 * 9) *
-			//	1 + (3 * 5 * 7 * 9 * 11 * 15 * 7 * 45)) *
-			//	1 + (3 * 5 * 7 * 9 * 11 * 13 * 15 * 15 * 14)) *
-			//	1 + (3 * 5 * 7 * 9 * 11 * 13 * 15 * 5 * 2 * 7 * 9)) *
-			//	1 + (3 * 5 * 7 * 9 * 11 * 13 * 15 * 17 * 5 * 9)) *
-			//	1 + (3 * 5 * 7 * 9 * 11 * 13 * 15 * 17 * 19))
-			//* 1
 			R += (C / B) * X;
 			if (Y > 0) {
-				X = Y * new BugNum(1, 8);
-				Y = 0; goto Next;
-				//R += Atan0125[--Y];
+				R += Atan0125[--Y];
 			}
 			if (L) R = PId2 - R;
-			var t = TOfTan(R);
-			BugNum tt = 0;
-			var ttt = RX - t;
-			while (ttt > 0) {
-				tt += ttt;
-				R = TAtan(RX + tt);
-				t = TOfTan(R);
-				ttt = RX - t;
+			var tan = TTan(R);
+			var dif = RX - tan;
+			BugNum sum = 0;
+			var posdif = +dif;
+			while (dif != 0) {
+				sum += TTan(dif);
+				var RR = TAtan1(RX + sum);
+				tan = TTan(RR);
+				dif = RX - tan;
+				var nexdif = +dif;
+				if (nexdif < posdif) {
+					R = RR;
+					posdif = nexdif;
+				} else {
+					break;
+				}
 			}
-			while (ttt < 0) {
-				tt += ttt;
-				R = TAtan(RX + tt);
-				t = TOfTan(R);
-				ttt = RX - t;
+			var max = maxDepth;
+			while (dif < 0 && max-->0) {
+				sum += TTan(dif);
+				R = TAtan1(RX + sum);
+				tan = TTan(R);
+				dif = RX - tan;
 			}
-			while (ttt > 0) {
-				tt += ttt;
-				R = TAtan(RX + tt);
-				t = TOfTan(R);
-				ttt = RX - t;
+			max = maxDepth;
+			while (dif > 0 && max-- > 0) {
+				sum += TTan(dif);
+				R = TAtan1(RX + sum);
+				tan = TTan(R);
+				dif = RX - tan;
 			}
-			//var c = 5u;
-			//var b = 3u;
-			//var a = 1u;
-			//var T = TOfTan(R);
-			//var P = R;
-			//var I = new BugNum(1, 10);
-			//while (T != RX) {
-			//	if (T < RX) {
-			//		var RI = R + I * c;
-			//		var TT = TOfTan(RI);
-			//		if (TT > RX) {
-			//			if (c == 1) {
-			//				I /= 10; c = 5; b = 3;
-			//			} else { c = b; b = a; }
-			//		} else {
-			//			R = RI;
-			//			T = TT;
-			//		}
-			//	} else {
-			//		var RI = R - I * c;
-			//		var TT = TOfTan(RI);
-			//		if (TT < RX) {
-			//			if (c == 1) {
-			//				I /= 10; c = 5; b = 3;
-			//			} else { c = b; b = a; }
-			//		} else {
-			//			R = RI;
-			//			T = TT;
-			//		}
-			//	}
-			//	if (I == 0) { break; }
-			//}
-			return M ? -R : R;
-		}
-		#endregion
-		#region #method# TOfTan(X) 
-		/// <summary>Возвращает положительный тангенс угла большей глубины)</summary>
-		public static BugNum TOfTan(BugNum X) {
-			var S = false;
-			BugNum C = 0;
-		Next:
-			if (S) X -= PId2;
-			var x = X;
-			if (x < 0) { x = -x; }
-			if (x > PIx2) {
-				var XP = x / PIx2;
-				x = PIx2 * (XP - (int)XP);
-			}
-			var M = (x > PId2 && x <= PId2x3);
-			var XX = x * x;
-			var XXX = XX;
-			var R = 1 - (XX / 2);
-			var I = 0;
-			var J = 0;
-			var Max = SinCosTanMax;
-			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
-			var Div = SinCosTanDiv;
-			while (I < Max) {
-				var XXA = XXX *= XX;
-				var XXB = XXX *= XX;
-				if (XXA == 0 && XXB == 0) break;
-				XXA /= Div[J++]; XXB /= Div[J++];
-				if (XXA == 0 && XXB == 0) break;
-				R += (XXA - XXB);
-				I++;
+			tan = TTan(R);
+			dif = RX - tan;
+			sum = 0;
+			posdif = +dif;
+			while (dif != 0) {
+				sum += TTan(dif);
+				var RR = TAtan1(RX + sum);
+				tan = TTan(RR);
+				dif = RX - tan;
+				var nexdif = +dif;
+				if (nexdif < posdif) {
+					R = RR;
+					posdif = nexdif;
+				} else {
+					break;
+				}
 			}
 			if (R < 0) R = -R;
-			//if (M) R = -R;
-			if (!S) { C = R; S = true; goto Next; }
-			R /= C;
-			return R;
+			var Z = posdif.Venom.Zerone;
+			if (Z > 0) {
+				Z -= posdif.Numer.Digits - 1;
+			}
+			var c = 5u;
+			var b = 3u;
+			var a = 1u;
+			var T = +TTan(R);
+			var P = R;
+			var I = new BugNum(1, Z > 0 ? BugInt.Pow(10, Z) : 10);
+			while (T != RX) {
+				if (T < RX) {
+					var RI = R + I * c;
+					var TT = +TTan(RI);
+					if (TT > RX) {
+						if (c == 1) {
+							I /= 10; c = 5; b = 3;
+						} else { c = b; b = a; }
+					} else {
+						R = RI;
+						T = TT;
+					}
+				} else {
+					var RI = R - I * c;
+					var TT = TTan(RI);
+					if (TT < RX) {
+						if (c == 1) {
+							I /= 10; c = 5; b = 3;
+						} else { c = b; b = a; }
+					} else {
+						R = RI;
+						T = TT;
+					}
+				}
+				if (I == 0) { break; }
+			}
+			return M ? -R : R;
 		}
 		#endregion
 		#region #method# TAtan(X) 
 		/// <summary>Функция возвращает обратный тангенс угла)</summary>
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static BugNum TAtan(BugNum X) {
 			if (X == 0) return 0;
 			var M = false;
 			if (X < 0) { X = -X; M = true; }
+			var RX = X;
 			var L = false;
 			var Y = 0;
-			//BugNum YY = 0;
 			BugNum R = 0;
 			if (X >= 8) { L = true; X = 1.0 / X; goto Next; }
 			Y = (int)(X * 8);
@@ -1046,13 +1008,27 @@
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
 			R += (C / B) * X;
-			//R += TCos(X) * X;
 			if (Y > 0) {
-				X = Y * new BugNum(1, 8);
-				Y = 0; goto Next;
-				//R += Atan0125[--Y];
+				//X = Y * new BugNum(1, 8);
+				//Y = 0; goto Next;
+				R += Atan0125[--Y];
 			}
 			if (L) R = PId2 - R;
+			return M ? -R : R;
+		}
+		#endregion
+		#region #method# TAtan1(X) 
+		private static BugNum TAtan1(BugNum X) {
+			if (X == 0) return 0;
+			var M = false;
+			if (X < 0) { X = -X; M = true; }
+			var Y = 0;
+			X = 1.0 / X;
+			var XX = X * X;
+			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
+			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
+			var R = (C / B) * X;
+			R = PId2 - R;
 			return M ? -R : R;
 		}
 		#endregion
