@@ -1200,7 +1200,7 @@ namespace Wholemy {
 				St S = null;
 				while (OpLeft != null) {
 					switch (OpLeft.Char) {
-						case '!': if (O) { O = !O; } else { V = -V; } break;
+						case '!': if (O) { O = !O; } else { V = !V; } break;
 						case '-': if (O) { V -= 1; } else { if (I == 0) { if (V >= 0) V = -V; } else { if (S != null) { if (S.Value != 0) V -= S.Value; S = S.Below; } else { V -= V; } } } break;
 						case '+': if (O) { S = new St(V, S); V += 1; } else { if (I == 0) { if (V < 0) V = +V; } else { S = new St(V, S); V += V; } } break;
 						case '*': S = new St(V, S); V *= V;
@@ -1317,7 +1317,7 @@ namespace Wholemy {
 					case "atanoftan": this.Value = BugNum.TAtanOfTan(this.Value); break;
 					case "pos": if (this.Value < 0) this.Value = +this.Value; break;
 					case "neg": if (this.Value >= 0) this.Value = -this.Value; break;
-					case "not": this.Value = -this.Value; break;
+					case "not": this.Value = !this.Value; break;
 				}
 				return this.Value;
 			}
@@ -1816,7 +1816,7 @@ namespace Wholemy {
 
 		private void ButtonT_Click(object sender, RoutedEventArgs e) {
 			var Value = new BugInt(TextValue.Text);
-			if (Value < 0) Value = -Value;
+			if (Value < 0) Value = +Value;
 			var Count = 0;
 			Map.ULong<BugInt> List = null;
 			for (var I = 2; I < 1000000 && I < Value; I++) {

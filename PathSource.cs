@@ -147,19 +147,46 @@
 			var sum = 0.0;
 			var posdif = +dif;
 			while (dif != 0) {
-				sum += TTan(dif);
+				sum += dif;
 				var RR = TAtan1(RX + sum);
 				tan = TTan(RR);
 				dif = RX - tan;
-				var nexdif = +dif;
-				if (nexdif < posdif) {
+				var nex = +dif;
+				if (nex < posdif) {
 					R = RR;
-					posdif = nexdif;
-				} else {
-					break;
-				}
+					posdif = nex;
+				} else { break; }
 			}
-			if (R < 0) R = -R;
+			var max = 17;
+			while (dif < 0 && max-- > 0) {
+				sum += dif;
+				R = TAtan1(RX + sum);
+				tan = TTan(R);
+				dif = RX - tan;
+			}
+			max = 17;
+			while (dif > 0 && max-- > 0) {
+				sum += dif;
+				R = TAtan1(RX + sum);
+				tan = TTan(R);
+				dif = RX - tan;
+			}
+			tan = TTan(R);
+			dif = RX - tan;
+			sum = 0.0;
+			posdif = +dif;
+			while (dif != 0) {
+				sum += dif;
+				var RR = TAtan1(RX + sum);
+				tan = TTan(RR);
+				dif = RX - tan;
+				var nex = +dif;
+				if (nex < posdif) {
+					R = RR;
+					posdif = nex;
+				} else { break; }
+			}
+			if (R < 0) R = +R;
 			return M ? -R : R;
 		}
 		#endregion
@@ -208,12 +235,13 @@
 			if (X == 0) return 0;
 			var M = false;
 			if (X < 0) { X = -X; M = true; }
-			X = 1.0 / X;
+			var I = false;
+			if (X > 1) { X = 1.0 / X; I = true; }
 			var XX = X * X;
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
 			var R = (C / B) * X;
-			R = (System.Math.PI / 2.0) - R;
+			if (I) R = (System.Math.PI / 2.0) - R;
 			return M ? -R : R;
 		}
 		#endregion

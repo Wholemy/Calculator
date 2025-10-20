@@ -208,7 +208,7 @@
 		/// </remarks>
 		public static int MaxChars {
 			get { return maxChars; }
-			set { if (value < 0) value = -value; if (value > maxDepth) maxChars = maxDepth; else maxChars = value; }
+			set { if (value < 0) value = +value; if (value > maxDepth) maxChars = maxDepth; else maxChars = value; }
 		}
 		private static int maxChars = maxDepth / 2;
 		#endregion
@@ -321,7 +321,7 @@
 				var Venom = this.Venom;
 				var Minus = false;
 				if (Numer != 0 && Venom != 0) {
-					if (Numer < 0) { Numer = -Numer; Minus = true; }
+					if (Numer < 0) { Numer = +Numer; Minus = true; }
 					var Gcd = BugInt.Gcd(Numer, Venom);
 					if (Gcd > 1) { Numer /= Gcd; Venom /= Gcd; }
 				}
@@ -383,7 +383,7 @@
 				if (Numer < 0) return "Neg";
 				return "Pos";
 			}
-			if (Numer < 0) { Numer = -Numer; Sign = "-"; }
+			if (Numer < 0) { Numer = !Numer; Sign = "-"; }
 			if (Venom > 0) {
 				Sign += BugInt.DivMod(Numer, Venom, out var Num).ToString();
 				Numer = Num * maxVenom / Venom;
@@ -406,7 +406,7 @@
 					}
 				}
 			} else {
-				Venom = -Venom;
+				Venom = !Venom;
 				Sign += Numer.ToString();
 				var Decimal = Venom.ToString();
 				if (Decimal.Length > maxChars) {
@@ -427,9 +427,9 @@
 		public static BugNum operator /(BugNum L, BugNum R) {
 			if (R.Numer == 0) throw new System.DivideByZeroException("R");
 			var LMinus = false;
-			if (L < 0) { L = -L; LMinus = true; }
+			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = -R; RMinus = true; }
+			if (R < 0) { R = +R; RMinus = true; }
 			var Result = new BugNum(L.Numer * R.Venom, L.Venom * R.Numer);
 			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
 			if (LMinus ^ RMinus) Result = -Result;
@@ -438,9 +438,9 @@
 		public static BugNum operator /(BugNum L, int R) {
 			if (R == 0) throw new System.DivideByZeroException("R");
 			var LMinus = false;
-			if (L < 0) { L = -L; LMinus = true; }
+			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = -R; RMinus = true; }
+			if (R < 0) { R = +R; RMinus = true; }
 			var Result = new BugNum(L.Numer, L.Venom * R);
 			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
 			if (LMinus ^ RMinus) Result = -Result;
@@ -451,9 +451,9 @@
 		public static BugNum operator %(BugNum L, BugNum R) {
 			if (R.Numer == 0) throw new System.DivideByZeroException("R");
 			var LMinus = false;
-			if (L < 0) { L = -L; LMinus = true; }
+			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = -R; RMinus = true; }
+			if (R < 0) { R = +R; RMinus = true; }
 			var Result = new BugNum(L.Numer * R.Venom, L.Venom * R.Numer);
 			Result = (L - new BugNum(Result.Numer - (Result.Numer % Result.Venom), Result.Venom) * R);
 			if (LMinus) Result = R - Result;
@@ -463,9 +463,9 @@
 		public static BugNum operator %(BugNum L, int R) {
 			if (R == 0) throw new System.DivideByZeroException("R");
 			var LMinus = false;
-			if (L < 0) { L = -L; LMinus = true; }
+			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = -R; RMinus = true; }
+			if (R < 0) { R = +R; RMinus = true; }
 			var Result = new BugNum(L.Numer, L.Venom * R);
 			Result = (L - new BugNum(Result.Numer - (Result.Numer % Result.Venom), Result.Venom) * R);
 			if (LMinus) Result = R - Result;
@@ -476,9 +476,9 @@
 		#region #operator# * 
 		public static BugNum operator *(BugNum L, BugNum R) {
 			var LMinus = false;
-			if (L < 0) { L = -L; LMinus = true; }
+			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = -R; RMinus = true; }
+			if (R < 0) { R = +R; RMinus = true; }
 			var Result = new BugNum(L.Numer * R.Numer, R.Venom * L.Venom);
 			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
 			if (LMinus ^ RMinus) Result = -Result;
@@ -486,9 +486,9 @@
 		}
 		public static BugNum operator *(BugNum L, int R) {
 			var LMinus = false;
-			if (L < 0) { L = -L; LMinus = true; }
+			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = -R; RMinus = true; }
+			if (R < 0) { R = +R; RMinus = true; }
 			var Result = new BugNum(L.Numer * R, L.Venom);
 			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
 			if (LMinus ^ RMinus) Result = -Result;
@@ -498,9 +498,9 @@
 		#region #operator# - 
 		public static BugNum operator -(BugNum L, BugNum R) {
 			var LMinus = false;
-			if (L < 0) { L = -L; LMinus = true; }
+			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = -R; RMinus = true; }
+			if (R < 0) { R = +R; RMinus = true; }
 			var OMinus = LMinus;
 			BugNum Result;
 			if (LMinus == RMinus) {
@@ -520,9 +520,9 @@
 		#region #operator# + 
 		public static BugNum operator +(BugNum L, BugNum R) {
 			var LMinus = false;
-			if (L < 0) { L = -L; LMinus = true; }
+			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = -R; RMinus = true; }
+			if (R < 0) { R = +R; RMinus = true; }
 			var OMinus = LMinus;
 			BugNum Result;
 			if (LMinus == RMinus) {
@@ -544,8 +544,8 @@
 			if (L.Numer == 0) return L;
 			if (E < 0) {
 				BugInt numerator = L.Numer;
-				BugInt numerator2 = BugInt.Pow(L.Venom, -E);
-				BugInt denominator = BugInt.Pow(numerator, -E);
+				BugInt numerator2 = BugInt.Pow(L.Venom, +E);
+				BugInt denominator = BugInt.Pow(numerator, +E);
 				return new BugNum(numerator2, denominator);
 			}
 			BugInt numerator3 = BugInt.Pow(L.Numer, E);
@@ -591,7 +591,7 @@
 		#region #new# (#double # Value) 
 		public BugNum(double Value) {
 			var Minus = false;
-			if (Value < 0) { Value = -Value; Minus = true; }
+			if (Value < 0) { Value = +Value; Minus = true; }
 			var Num = new BugInt(0);
 			var Cnt = 0;
 			while (Value >= 1) {
@@ -620,24 +620,37 @@
 		}
 		#endregion
 		#endregion
-		#region #operator# +(#struct # value)
+		#region #operator# - (#struct # value) 
 		#region #through# 
 #if TRACE
 		[System.Diagnostics.DebuggerStepThrough]
 #endif
 		#endregion
-		public static BugNum operator +(BugNum value) {
-			return new BugNum(+value.Numer, value.Venom);
-		}
-		#endregion
-		#region #operator# -(#struct # value)
-		#region #through# 
-#if TRACE
-		[System.Diagnostics.DebuggerStepThrough]
-#endif
-		#endregion
+		/// <summary>Оператор возвращает отридцательное значение в любом случае)</summary>
 		public static BugNum operator -(BugNum value) {
 			return new BugNum(-value.Numer, value.Venom);
+		}
+		#endregion
+		#region #operator# ! (#struct # value) 
+		/// <summary>Оператор возвращает значение с инвертированным знаком числа)</summary>
+		#region #through# 
+#if TRACE
+		[System.Diagnostics.DebuggerStepThrough]
+#endif
+		#endregion
+		public static BugNum operator !(BugNum value) {
+			return new BugNum(!value.Numer, value.Venom);
+		}
+		#endregion
+		#region #operator# + (#struct # value) 
+		#region #through# 
+#if TRACE
+		[System.Diagnostics.DebuggerStepThrough]
+#endif
+		#endregion
+		/// <summary>Оператор возвращает положительное значение в любом случае)</summary>
+		public static BugNum operator +(BugNum value) {
+			return new BugNum(+value.Numer, value.Venom);
 		}
 		#endregion
 		#region #method# SqrtDebug(S) 
@@ -880,7 +893,7 @@
 		public static BugNum TAtanOfTan(BugNum X) {
 			if (X == 0) return 0;
 			var M = false;
-			if (X < 0) { X = -X; M = true; }
+			if (X < 0) { X = +X; M = true; }
 			var RX = X;
 			var L = false;
 			var Y = 0;
@@ -901,32 +914,32 @@
 			}
 			if (L) R = PId2 - R;
 			var tan = TTan(R);
+			BugNum pre = 0;
 			var dif = RX - tan;
 			BugNum sum = 0;
-			var posdif = +dif;
-			while (dif != 0) {
-				sum += TTan(dif);
+			BugNum posdif = +dif;
+			while (dif != 0&&dif!= pre) {
+				pre = dif;
+				sum += dif;
 				var RR = TAtan1(RX + sum);
 				tan = TTan(RR);
 				dif = RX - tan;
-				var nexdif = +dif;
-				if (nexdif < posdif) {
+				var nex = +dif;
+				if (nex < posdif) {
 					R = RR;
-					posdif = nexdif;
-				} else {
-					break;
-				}
+					posdif = nex;
+				} else { break; }
 			}
 			var max = maxDepth;
-			while (dif < 0 && max-->0) {
-				sum += TTan(dif);
+			while (dif < 0 && max-- > 0) {
+				sum += dif;
 				R = TAtan1(RX + sum);
 				tan = TTan(R);
 				dif = RX - tan;
 			}
 			max = maxDepth;
 			while (dif > 0 && max-- > 0) {
-				sum += TTan(dif);
+				sum += dif;
 				R = TAtan1(RX + sum);
 				tan = TTan(R);
 				dif = RX - tan;
@@ -935,20 +948,19 @@
 			dif = RX - tan;
 			sum = 0;
 			posdif = +dif;
-			while (dif != 0) {
-				sum += TTan(dif);
+			pre = 0;
+			while (dif != 0 && dif != pre) {
+				pre = dif;
+				sum += dif;
 				var RR = TAtan1(RX + sum);
 				tan = TTan(RR);
 				dif = RX - tan;
-				var nexdif = +dif;
-				if (nexdif < posdif) {
+				var nex = +dif;
+				if (nex < posdif) {
 					R = RR;
-					posdif = nexdif;
-				} else {
-					break;
-				}
+					posdif = nex;
+				} else { break; }
 			}
-			if (R < 0) R = -R;
 			var Z = posdif.Venom.Zerone;
 			if (Z > 0) {
 				Z -= posdif.Numer.Digits - 1;
@@ -973,7 +985,7 @@
 					}
 				} else {
 					var RI = R - I * c;
-					var TT = TTan(RI);
+					var TT = +TTan(RI);
 					if (TT < RX) {
 						if (c == 1) {
 							I /= 10; c = 5; b = 3;
@@ -993,7 +1005,7 @@
 		public static BugNum TAtan(BugNum X) {
 			if (X == 0) return 0;
 			var M = false;
-			if (X < 0) { X = -X; M = true; }
+			if (X < 0) { X = +X; M = true; }
 			var RX = X;
 			var L = false;
 			var Y = 0;
@@ -1021,14 +1033,14 @@
 		private static BugNum TAtan1(BugNum X) {
 			if (X == 0) return 0;
 			var M = false;
-			if (X < 0) { X = -X; M = true; }
-			var Y = 0;
-			X = 1.0 / X;
+			if (X < 0) { X = +X; M = true; }
+			var I = false;
+			if (X > 1) { X = 1.0 / X; I = true; }
 			var XX = X * X;
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
 			var R = (C / B) * X;
-			R = PId2 - R;
+			if(I) R = PId2 - R;
 			return M ? -R : R;
 		}
 		#endregion
@@ -1047,14 +1059,14 @@
 		#endregion
 		#region #method# TAsin(X) 
 		public static BugNum TAsin(BugNum X) {
-			if (X < 0) X = -X;
+			if (X < 0) X = +X;
 			if (X > 1) return 1;
 			return TAtan2(X, Sqrt(1 - X * X, 17));
 		}
 		#endregion
 		#region #method# TCos(X) 
 		public static BugNum TCos(BugNum X) {
-			if (X < 0) { X = -X; }
+			if (X < 0) { X = +X; }
 			if (X > PIx2) {
 				var XP = X / PIx2;
 				X = PIx2 * (XP - (int)XP);
@@ -1077,7 +1089,7 @@
 				R += (XXA - XXB);
 				I++;
 			}
-			if (R < 0) R = -R;
+			if (R < 0) R = +R;
 			if (M) R = -R;
 			return R;
 		}
@@ -1085,7 +1097,7 @@
 		#region #method# TSin(X) 
 		public static BugNum TSin(BugNum X) {
 			X -= PId2;
-			if (X < 0) { X = -X; }
+			if (X < 0) { X = +X; }
 			if (X > PIx2) {
 				var XP = X / PIx2;
 				X = PIx2 * (XP - (int)XP);
@@ -1108,7 +1120,7 @@
 				R += (XXA - XXB);
 				I++;
 			}
-			if (R < 0) R = -R;
+			if (R < 0) R = +R;
 			if (M) R = -R;
 			return R;
 		}
@@ -1143,7 +1155,7 @@
 				R += (XXA - XXB);
 				I++;
 			}
-			if (R < 0) R = -R;
+			if (R < 0) R = +R;
 			if (M) R = -R;
 			if (!S) { C = R; S = true; goto Next; }
 			Cos = C;
@@ -1157,7 +1169,7 @@
 		Next:
 			if (S) X -= PId2;
 			var x = X;
-			if (x < 0) { x = -x; }
+			if (x < 0) { x = +x; }
 			if (x > PIx2) {
 				var XP = x / PIx2;
 				x = PIx2 * (XP - (int)XP);
@@ -1180,7 +1192,7 @@
 				R += (XXA - XXB);
 				I++;
 			}
-			if (R < 0) R = -R;
+			if (R < 0) R = +R;
 			if (M) R = -R;
 			if (!S) { C = R; S = true; goto Next; }
 			R /= C;
@@ -1240,7 +1252,7 @@
 					}
 					if (Int > 0) R += (ulong)Int;
 				} else {
-					R = (-Venom).ToDouble();
+					R = (!Venom).ToDouble();
 					if (Numer > 0) R += (ulong)Numer;
 				}
 				if (Minus) R = -R;
