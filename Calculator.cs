@@ -6,9 +6,12 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup.Primitives;
 using System.Windows.Media;
+using static System.Net.Mime.MediaTypeNames;
+using static Wholemy.Map;
 namespace Wholemy {
 	#region #class# Calculator 
 	public class Calculator : System.Windows.Application {
+		public static System.Threading.Thread WorkThread;
 		public static bool OpLeftMulEnable = true;
 		public static bool OpLeftMulAddToStack = false;
 		public static bool OpLeftMulValInStack = true;
@@ -73,6 +76,13 @@ namespace Wholemy {
 	#endregion Application 
 	#region #class# MainWindow 
 	public class MainWindow : System.Windows.Window {
+		protected override void OnClosed(EventArgs e) {
+			if(Calculator.WorkThread!=null) {
+				Calculator.WorkThread.Abort();
+				Calculator.WorkThread = null;
+			}
+			base.OnClosed(e);
+		}
 		public static readonly RoutedEvent WeigfEvent = EventManager.RegisterRoutedEvent("Weigf", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(MainWindow));
 		public event RoutedEventHandler Weigf {
 			add {
@@ -1203,7 +1213,8 @@ namespace Wholemy {
 						case '!': if (O) { O = !O; } else { V = !V; } break;
 						case '-': if (O) { V -= 1; } else { if (I == 0) { if (V >= 0) V = -V; } else { if (S != null) { if (S.Value != 0) V -= S.Value; S = S.Below; } else { V -= V; } } } break;
 						case '+': if (O) { S = new St(V, S); V += 1; } else { if (I == 0) { if (V < 0) V = +V; } else { S = new St(V, S); V += V; } } break;
-						case '*': S = new St(V, S); V *= V;
+						case '*':
+							S = new St(V, S); V *= V;
 							//if (Calculator.OpLeftMulEnable) {
 							//	var SS = S;
 							//	if (Calculator.OpLeftMulAddToStack) { S = new St(V, S); }
@@ -1254,7 +1265,7 @@ namespace Wholemy {
 				this.Next = Next;
 				this.Depth = Depth;
 			}
-			public BugNum End(string Word) {
+			public BugNum End(string Word, DirectBodrer Dir) {
 				ValueStack A = null;
 				ValueStack B = null;
 				var P = true;
@@ -1314,7 +1325,7 @@ namespace Wholemy {
 					case "sin": this.Value = BugNum.TSin(this.Value); break;
 					case "tan": this.Value = BugNum.TTan(this.Value); break;
 					case "atan": this.Value = BugNum.TAtan(this.Value); break;
-					case "atanoftan": this.Value = BugNum.TAtanOfTan(this.Value); break;
+					case "atanoftan": this.Value = BugNum.TAtanOfTan(this.Value, new System.Action<BugNum,int>(Dir.ProcessNum)); break;
 					case "pos": if (this.Value < 0) this.Value = +this.Value; break;
 					case "neg": if (this.Value >= 0) this.Value = -this.Value; break;
 					case "not": this.Value = !this.Value; break;
@@ -1344,9 +1355,9 @@ namespace Wholemy {
 			}
 		}
 		#endregion
-		#region #method# TextValue_TextChanged(sender, e) 
-		private void TextValue_TextChanged(object sender, TextChangedEventArgs e) {
-			var Chars = TextValue.Text;
+		#region #method# Process 
+		private void Process() {
+			var Chars = TText;
 			OperStack Operator = null;
 			OperStack SetOpLeft = null;
 			bool SetOpLeftEnable = false;
@@ -1584,7 +1595,7 @@ namespace Wholemy {
 					var Word = DepthStack.OpWord;
 					DepthStack = DepthStack.Next;
 					if (DepthStackValue != null) {
-						V = DepthStackValue.End(Word);
+						V = DepthStackValue.End(Word, this);
 						if (OpLeft != null) {
 							V = OpLeft.Apply(V);
 							OpLeft = null;
@@ -1646,7 +1657,7 @@ namespace Wholemy {
 				var OpLeft = DepthStack.OpLeft;
 				DepthStack = DepthStack.Next;
 				if (DepthStackValue != null) {
-					V = DepthStackValue.End(Word);
+					V = DepthStackValue.End(Word, this);
 
 					if (OpLeft != null) {
 						V = OpLeft.Apply(V);
@@ -1672,9 +1683,45 @@ namespace Wholemy {
 					}
 				}
 			}
+			var str = "";
 			if (Value != null)
-				TextResult.Text = Value.End(null).ToString();
-			else TextResult.Text = "";
+				str = Value.End(null, this).ToString();
+			ProcessEnd(str);
+		}
+		#endregion
+		public void ProcessNum(BugNum val, int cnt) {
+			ProcessNumSend(val.ToString(), cnt);
+		}
+		public void ProcessEnd(string val) {
+			this.Dispatcher.BeginInvoke(new System.Action<string>(ProcessEndText), System.Windows.Threading.DispatcherPriority.Input, new object[] { val });
+		}
+		public void ProcessNumSend(string val, int cnt) {
+			this.Dispatcher.BeginInvoke(new System.Action<string, int>(ProcessNumText), System.Windows.Threading.DispatcherPriority.Input, new object[] { val,cnt });
+		}
+		public void ProcessNumText(string val, int cnt) {
+			TextResult.Background = Colors.BackgroundWork;
+			TextResult.Text = val;
+			if(cnt<val.Length) {
+				TextResult.SelectionBrush = Colors.Background;
+				TextResult.Select(0,cnt);
+			}
+		}
+		public void ProcessEndText(string val) {
+			TextResult.Background = Colors.Background;
+			TextResult.Text = val;
+			TextResult.Select(0, 0);
+		}
+		
+		string TText;
+		#region #method# TextValue_TextChanged(sender, e) 
+		private void TextValue_TextChanged(object sender, TextChangedEventArgs e) {
+			TText = TextValue.Text;
+			if (Calculator.WorkThread != null) {
+				Calculator.WorkThread.Abort();
+				Calculator.WorkThread = null;
+			}
+			Calculator.WorkThread = new System.Threading.Thread(new System.Threading.ThreadStart(Process));
+			Calculator.WorkThread.Start();
 		}
 		#endregion
 		#region #method# N_Enter(sender, e) 

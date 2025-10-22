@@ -904,116 +904,221 @@
 			return A;
 		}
 		#endregion
-		#region #method# TAtanOfTan(X) 
+		#region #method# TAtanOfTan(X, O) 
 		/// <summary>Функция возвращает обратный тангенс угла с проверкой и уточнением тангенсом)</summary>
-		public static BugNum TAtanOfTan(BugNum X) {
+		public static BugNum TAtanOfTan(BugNum X, System.Action<BugNum, int> O) {
 			if (X == 0) return 0;
 			var M = false;
 			if (X < 0) { X = +X; M = true; }
 			var RX = X;
-			var L = false;
-			var Y = 0;
-			BugNum YY = 0;
-			BugNum R = 0;
-			if (X >= 10) { L = true; X = 1.0 / X; goto Next; }
-			Y = (int)(X * 8);
-			if (Y < 0) Y++;
-			var XX = Y / new BugNum(8);
-			X = (X - XX) / (X * XX + 1);
-		Next:
-			XX = X * X;
+			var A1 = X < new BugNum(3, 4);
+			var XX = X * X;
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
-			R += (C / B) * X;
-			if (Y > 0) {
-				R += Atan0125[--Y];
-			}
-			if (L) R = PId2 - R;
+			var R = (C / B) * X;
+			O(R, 0);
 			var tan = TTan(R);
 			BugNum pre = 0;
 			var dif = RX - tan;
-			BugNum sum = 0;
-			BugNum posdif = +dif;
-			while (dif != 0&&dif!= pre) {
-				pre = dif;
-				sum += dif;
-				var RR = TAtan1(RX + sum);
-				tan = TTan(RR);
-				dif = RX - tan;
-				var nex = +dif;
-				if (nex < posdif) {
-					R = RR;
-					posdif = nex;
-				} else { break; }
+			var posdif = +dif;
+			var Z = posdif.Venom.Zerone;
+			if (Z > 0) {
+				var Dig = posdif.Numer.Digits;
+				if (Dig > 0) {
+					Z -= Dig - 1;
+				}
+				if (Dig < 10) goto End;
 			}
+			BugNum sum = dif;
+			var E = TAtan1(RX + sum, A1);
+			O(M ? -E : +E, EqualDigits(R, E));
+			R = E;
 			var max = maxDepth;
-			while (dif < 0 && max-- > 0) {
+			Z = 0;
+			while (dif > 0 && Z < max) {
+				Z++;
 				sum += dif;
-				R = TAtan1(RX + sum);
+				E = TAtan1(RX + sum, A1);
+				O(M ? -E : +E, EqualDigits(R, E));
+				R = E;
 				tan = TTan(R);
 				dif = RX - tan;
 			}
-			max = maxDepth;
-			while (dif > 0 && max-- > 0) {
+			Z = 0;
+			while (dif < 0 && Z < max) {
+				Z++;
 				sum += dif;
-				R = TAtan1(RX + sum);
+				E = TAtan1(RX + sum, A1);
+				O(M ? -E : +E, EqualDigits(R, E));
+				R = E;
+				tan = TTan(R);
+				dif = RX - tan;
+			}
+			Z = 0;
+			while (dif > 0 && Z < max) {
+				Z++;
+				sum += dif;
+				E = TAtan1(RX + sum, A1);
+				O(M ? -E : +E, EqualDigits(R, E));
+				R = E;
 				tan = TTan(R);
 				dif = RX - tan;
 			}
 			tan = TTan(R);
 			dif = RX - tan;
+			sum += dif;
+			E = TAtan1(RX + sum, A1);
+			O(M ? -E : +E, EqualDigits(R, E));
 			sum = 0;
 			posdif = +dif;
-			pre = 0;
-			while (dif != 0 && dif != pre) {
-				pre = dif;
-				sum += dif;
-				var RR = TAtan1(RX + sum);
-				tan = TTan(RR);
-				dif = RX - tan;
-				var nex = +dif;
-				if (nex < posdif) {
-					R = RR;
-					posdif = nex;
-				} else { break; }
+			Z = posdif.Venom.Zerone;
+			if (Z > 0) {
+				var Dig = posdif.Numer.Digits;
+				if (Dig > 0)
+					Z -= Dig - 1;
 			}
+		End:
+			if (Z == 0 || Z < maxDepth) {
+				var c = 5u;
+				var b = 3u;
+				var a = 1u;
+				var T = +TTan(R);
+				var P = R;
+				var I = new BugNum(1, Z > 0 ? BugInt.Pow(10, Z) : 10);
+				while (T != RX) {
+					if (T < RX) {
+						var RI = R + I * c;
+						var TT = +TTan(RI);
+						if (TT > RX) {
+							if (c == 1) {
+								I /= 10; Z++; c = 5; b = 3;
+							} else { c = b; b = a; }
+						} else {
+							O(M ? -R : +R, EqualDigits(R, RI));
+							R = RI;
+							T = TT;
+						}
+					} else {
+						var RI = R - I * c;
+						var TT = +TTan(RI);
+						if (TT < RX) {
+							if (c == 1) {
+								I /= 10; Z++; c = 5; b = 3;
+							} else { c = b; b = a; }
+						} else {
+							O(M ? -R : +R, EqualDigits(R, RI));
+							R = RI;
+							T = TT;
+						}
+					}
+					if (I == 0) { break; }
+				}
+			}
+			return M ? -R : +R;
+		}
+		#endregion
+		#region #method# TAtanOfTan(X) 
+		/// <summary>Функция возвращает обратный тангенс угла с проверкой и уточнением тангенсом)</summary>
+		public static BugNum TAtanOfTan(BugNum X) {
+			if (X == BugNum.Zer) return BugNum.Zer;
+			var M = false;
+			if (X < BugNum.Zer) { X = +X; M = true; }
+			var RX = X;
+			var A1 = X<new BugNum(3,4);
+			var XX = X * X;
+			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
+			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
+			var R = (C / B) * X;
+			var tan = TTan(R);
+			var dif = RX - tan;
+			var posdif = +dif;
 			var Z = posdif.Venom.Zerone;
 			if (Z > 0) {
-				Z -= posdif.Numer.Digits - 1;
-			}
-			var c = 5u;
-			var b = 3u;
-			var a = 1u;
-			var T = +TTan(R);
-			var P = R;
-			var I = new BugNum(1, Z > 0 ? BugInt.Pow(10, Z) : 10);
-			while (T != RX) {
-				if (T < RX) {
-					var RI = R + I * c;
-					var TT = +TTan(RI);
-					if (TT > RX) {
-						if (c == 1) {
-							I /= 10; c = 5; b = 3;
-						} else { c = b; b = a; }
-					} else {
-						R = RI;
-						T = TT;
-					}
-				} else {
-					var RI = R - I * c;
-					var TT = +TTan(RI);
-					if (TT < RX) {
-						if (c == 1) {
-							I /= 10; c = 5; b = 3;
-						} else { c = b; b = a; }
-					} else {
-						R = RI;
-						T = TT;
-					}
+				var Dig = posdif.Numer.Digits;
+				if (Dig > 0) {
+					Z -= Dig - 1;
 				}
-				if (I == 0) { break; }
+				if (Dig < 10) goto End;
 			}
-			return M ? -R : R;
+			BugNum sum = dif;
+			var E = TAtan1(RX + sum, A1);
+			R = E;
+			var max = maxDepth;
+			Z = 0;
+			while (dif > 0 && Z < max) {
+				Z++;
+				sum += dif;
+				E = TAtan1(RX + sum, A1);
+				R = E;
+				tan = TTan(R);
+				dif = RX - tan;
+			}
+			Z = 0;
+			while (dif < 0 && Z < max) {
+				Z++;
+				sum += dif;
+				E = TAtan1(RX + sum, A1);
+				R = E;
+				tan = TTan(R);
+				dif = RX - tan;
+			}
+			Z = 0;
+			while (dif > 0 && Z < max) {
+				Z++;
+				sum += dif;
+				E = TAtan1(RX + sum, A1);
+				R = E;
+				tan = TTan(R);
+				dif = RX - tan;
+			}
+			tan = TTan(R);
+			dif = RX - tan;
+			sum += dif;
+			//E = TAtan1(RX + sum, A1);
+			sum = 0;
+			posdif = +dif;
+			Z = posdif.Venom.Zerone;
+			if (Z > 0) {
+				var Dig = posdif.Numer.Digits;
+				if (Dig > 0)
+					Z -= Dig - 1;
+			}
+		End:
+			if (Z == 0 || Z < maxDepth) {
+				var c = 5u;
+				var b = 3u;
+				var a = 1u;
+				var T = +TTan(R);
+				var P = R;
+				var I = new BugNum(1, Z > 0 ? BugInt.Pow(10, Z) : 10);
+				while (T != RX) {
+					if (T < RX) {
+						var RI = R + I * c;
+						var TT = +TTan(RI);
+						if (TT > RX) {
+							if (c == 1) {
+								I /= 10; Z++; c = 5; b = 3;
+							} else { c = b; b = a; }
+						} else {
+							R = RI;
+							T = TT;
+						}
+					} else {
+						var RI = R - I * c;
+						var TT = +TTan(RI);
+						if (TT < RX) {
+							if (c == 1) {
+								I /= 10; Z++; c = 5; b = 3;
+							} else { c = b; b = a; }
+						} else {
+							R = RI;
+							T = TT;
+						}
+					}
+					if (I == 0) { break; }
+				}
+			}
+			return M ? -R : +R;
 		}
 		#endregion
 		#region #method# TAtan(X) 
@@ -1046,17 +1151,17 @@
 		}
 		#endregion
 		#region #method# TAtan1(X) 
-		private static BugNum TAtan1(BugNum X) {
-			if (X == 0) return 0;
+		private static BugNum TAtan1(BugNum X,bool A) {
+			if (X == BugNum.Zer) return BugNum.Zer;
 			var M = false;
-			if (X < 0) { X = +X; M = true; }
+			if (X < BugNum.Zer) { X = +X; M = true; }
 			var I = false;
-			if (X > 1) { X = 1.0 / X; I = true; }
+			if ((A && X > BugNum.One) ||(!A && X>BugNum.V05)) { X = BugNum.One / X; I = true; }
 			var XX = X * X;
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
 			var R = (C / B) * X;
-			if(I) R = PId2 - R;
+			if (I) R = PId2 - R;
 			return M ? -R : R;
 		}
 		#endregion
@@ -1180,6 +1285,7 @@
 		#endregion
 		#region #method# TTan(X) 
 		public static BugNum TTan(BugNum X) {
+			if (X == 0) return 0;
 			var S = false;
 			BugNum C = 0;
 		Next:
