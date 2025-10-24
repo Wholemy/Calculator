@@ -156,13 +156,13 @@ namespace Wholemy {
 		public readonly GlobalFunctionBodrer Func;
 		public readonly GlobalSettingsBodrer Glob;
 		public MainWindow() {
-			A = new NumberBodrer(this, "A");
-			B = new NumberBodrer(this, "B");
-			R = new NumberBodrer(this, "R");
-			M = new NumberBodrer(this, "M");
-			Y = new NumberBodrer(this, "Y");
-			X = new NumberBodrer(this, "X");
-			T = new TextBodrer(this, "T");
+			A = new NumberBodrer(this, "A") { Visibility = Visibility.Collapsed };
+			B = new NumberBodrer(this, "B") { Visibility = Visibility.Collapsed };
+			R = new NumberBodrer(this, "R") { Visibility = Visibility.Collapsed };
+			M = new NumberBodrer(this, "M") { Visibility = Visibility.Collapsed };
+			Y = new NumberBodrer(this, "Y") { Visibility = Visibility.Collapsed };
+			X = new NumberBodrer(this, "X") { Visibility = Visibility.Collapsed };
+			T = new TextBodrer(this, "T") { Visibility = Visibility.Collapsed };
 			D = new DirectStackBorder(this, "D");
 			Func = new GlobalFunctionBodrer(this);
 			Glob = new GlobalSettingsBodrer(this);

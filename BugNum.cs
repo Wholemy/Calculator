@@ -24,20 +24,32 @@
 		/// <summary>Максимальная вычисленная длина множителей)</summary>
 		private static int SinCosTanMax;
 		#endregion
+		#region #field# SinCosTanLap 
+		/// <summary>Предыдущее значение добавления)</summary>
+		private static uint SinCosTanLap = 3;
+		#endregion
+		#region #field# SinCosTanLas 
+		/// <summary>Предыдущее значение добавления)</summary>
+		private static int SinCosTanLas = 0;
+		#endregion
+		#region #field# SinCosTanLow 
+		/// <summary>Последнее нижнее значение)</summary>
+		private static BugInt SinCosTanLow = 0;
+		#endregion
 		#region #method# SinCosTanGen 
 		/// <summary>Генератор опорных множителей для синусов, косинусов и тангенсов)</summary>
 		private static int SinCosTanGen() {
-			uint P = 3;
+			uint Lap = SinCosTanLap;
 			var D = new BugInt[200];
 			var I = 0;
 			BugInt FF = 2ul;
 			var FI = 0;
 			var J = 0;
 			while (I < 100) {
-				FF *= (P++ * P++);
+				FF *= (Lap++ * Lap++);
 				var A = FF;
 				var XA = BugNum.One / FF;
-				FF *= (P++ * P++);
+				FF *= (Lap++ * Lap++);
 				var B = FF;
 				var XB = BugNum.One / FF;
 				if (XA == 0 || XB == 0) break;
@@ -52,6 +64,49 @@
 			return I;
 		}
 		#endregion
+		/// <summary>Генератор опорных множителей для синусов, косинусов и тангенсов)</summary>
+		private static int SinCosTanGen(BugInt Int) {
+			uint Lap = SinCosTanLap;
+			var Div = SinCosTanDiv;
+			var Las = SinCosTanLas;
+			var Max = SinCosTanMax;
+			BugInt Far = 2ul;
+			if (Div == null) {
+				Div = SinCosTanDiv = new BugInt[200];
+				while (Max < 100) {
+					Far *= (Lap++ * Lap++);
+					Div[Las++] = Far;
+					SinCosTanLow = Far;
+					Far *= (Lap++ * Lap++);
+					Div[Las++] = Far;
+					Max++;
+				}
+				SinCosTanLas = Las;
+				SinCosTanLap = Lap;
+				SinCosTanMax = Max;
+			} else {
+				Far = Div[Las - 1];
+			}
+			//var One = new BugNum(1, 1, Depth);
+			while (Far < Int) {
+				var NewDiv = new BugInt[Div.Length + 200];
+				System.Array.Copy(Div, NewDiv, Div.Length);
+				Div = SinCosTanDiv = NewDiv;
+				var NewMax = Max + 100;
+				while (Max < NewMax) {
+					Far *= (Lap++ * Lap++);
+					Div[Las++] = Far;
+					SinCosTanLow = Far;
+					Far *= (Lap++ * Lap++);
+					Div[Las++] = Far;
+					Max++;
+				}
+				SinCosTanLas = Las;
+				SinCosTanLap = Lap;
+				SinCosTanMax = Max;
+			}
+			return Max;
+		}
 		static BugNum() { InitDepthConsts(); }
 		public static readonly BugNum Zer = new BugNum() { Numer = 0, Venom = 1 };
 		public static readonly BugNum One = new BugNum() { Numer = 1, Venom = 1 };
@@ -636,37 +691,37 @@
 		}
 		#endregion
 		#endregion
-		#region #operator# - (#struct # value) 
+		#region #operator# - (#struct # Value) 
 		#region #through# 
 #if TRACE
 		[System.Diagnostics.DebuggerStepThrough]
 #endif
 		#endregion
 		/// <summary>Оператор возвращает отридцательное значение в любом случае)</summary>
-		public static BugNum operator -(BugNum value) {
-			return new BugNum(-value.Numer, value.Venom);
+		public static BugNum operator -(BugNum Value) {
+			return new BugNum(-Value.Numer, Value.Venom);
 		}
 		#endregion
-		#region #operator# ! (#struct # value) 
+		#region #operator# ! (#struct # Value) 
 		/// <summary>Оператор возвращает значение с инвертированным знаком числа)</summary>
 		#region #through# 
 #if TRACE
 		[System.Diagnostics.DebuggerStepThrough]
 #endif
 		#endregion
-		public static BugNum operator !(BugNum value) {
-			return new BugNum(!value.Numer, value.Venom);
+		public static BugNum operator !(BugNum Value) {
+			return new BugNum(!Value.Numer, Value.Venom);
 		}
 		#endregion
-		#region #operator# + (#struct # value) 
+		#region #operator# + (#struct # Value) 
 		#region #through# 
 #if TRACE
 		[System.Diagnostics.DebuggerStepThrough]
 #endif
 		#endregion
 		/// <summary>Оператор возвращает положительное значение в любом случае)</summary>
-		public static BugNum operator +(BugNum value) {
-			return new BugNum(+value.Numer, value.Venom);
+		public static BugNum operator +(BugNum Value) {
+			return new BugNum(+Value.Numer, Value.Venom);
 		}
 		#endregion
 		#region #method# SqrtDebug(S) 
@@ -674,6 +729,7 @@
 			if (S == 0) return 0; if (S < 0) return 1;
 			var SS = S.Numer;
 			var VV = S.Venom;
+			var Depth = maxDepth;
 			var Ret = SS / VV;
 			var V = Ret;
 			if (V > 1) {
@@ -683,8 +739,8 @@
 				Ret = T;
 			}
 			var VenomInt = ((BugNum)VV);
-			var VVV = BugInt.Pow(10, maxDepth);
-			var D = maxDepth;
+			var VVV = BugInt.Pow(10, Depth);
+			var D = Depth;
 			while (--D >= 0) {
 				Ret *= 10;
 				VenomInt /= 100;
@@ -710,14 +766,15 @@
 			if (S == 0) return 0; if (S < 0) return 1;
 			var SS = S.Numer;
 			var VV = S.Venom;
-			var SV = SS * BugInt.Pow(10, maxDepth * 2) / VV;
+			var Depth = maxDepth;
+			var SV = SS * BugInt.Pow(10, Depth * 2) / VV;
 			if (SV > 1) {
 				var TT = SV;
 				var XX = SV / 2u;
 				while (TT != XX) { TT = XX; XX = (XX + (SV / XX)) / 2u; }
 				SS = TT;
 			}
-			return new BugNum(SS, BugInt.Pow(10, maxDepth));
+			return new BugNum(SS, BugInt.Pow(10, Depth));
 		}
 		#endregion
 		#region #method# Sqrt(S, Depth = MaxDepth) 
@@ -725,14 +782,15 @@
 			if (S == 0) return 0; if (S < 0) return 1;
 			var SS = S.Numer;
 			var VV = S.Venom;
-			var SV = SS * BugInt.Pow(10, maxDepth * 2) / VV;
+			var Depth = maxDepth;
+			var SV = SS * BugInt.Pow(10, Depth * 2) / VV;
 			if (SV > 1) {
 				var TT = SV;
 				var XX = SV / 2u;
 				while (TT != XX) { TT = XX; XX = (XX + (SV / XX)) / 2u; }
 				SS = TT;
 			}
-			return new BugNum(SS, BugInt.Pow(10, maxDepth));
+			return new BugNum(SS, BugInt.Pow(10, Depth));
 		}
 		#endregion
 		#region #operator # == (#struct # L, #struct # R) 
@@ -910,109 +968,48 @@
 			if (X == 0) return 0;
 			var M = false;
 			if (X < 0) { X = +X; M = true; }
-			var RX = X;
 			var A1 = X < new BugNum(3, 4);
-			var XX = X * X;
-			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
-			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
-			var R = (C / B) * X;
+			var R = TAtan1(X, A1);
 			O(R, 0);
 			var tan = TTan(R);
-			BugNum pre = 0;
-			var dif = RX - tan;
-			var posdif = +dif;
-			var Z = posdif.Venom.Zerone;
-			if (Z > 0) {
-				var Dig = posdif.Numer.Digits;
-				if (Dig > 0) {
-					Z -= Dig - 1;
-				}
-				if (Dig < 10) goto End;
-			}
+			var dif = X - tan;
+			BugNum E = R;
 			BugNum sum = dif;
-			var E = TAtan1(RX + sum, A1);
-			O(M ? -E : +E, EqualDigits(R, E));
-			R = E;
-			var max = maxDepth;
-			Z = 0;
-			while (dif > 0 && Z < max) {
-				Z++;
-				sum += dif;
-				E = TAtan1(RX + sum, A1);
+			BugNum pre = 0;
+			BugNum nex = R;
+			while (dif > 0 && pre != nex) {
+				pre = nex;
+				E = TAtan1(X + sum, A1);
 				O(M ? -E : +E, EqualDigits(R, E));
 				R = E;
-				tan = TTan(R);
-				dif = RX - tan;
-			}
-			Z = 0;
-			while (dif < 0 && Z < max) {
-				Z++;
+				nex = E;
+				tan = TTan(E);
+				dif = X - tan;
 				sum += dif;
-				E = TAtan1(RX + sum, A1);
+			}
+			pre = 0;
+			nex = R;
+			while (dif < 0 && pre != nex) {
+				pre = nex;
+				E = TAtan1(X + sum, A1);
 				O(M ? -E : +E, EqualDigits(R, E));
 				R = E;
-				tan = TTan(R);
-				dif = RX - tan;
-			}
-			Z = 0;
-			while (dif > 0 && Z < max) {
-				Z++;
+				nex = E;
+				tan = TTan(E);
+				dif = X - tan;
 				sum += dif;
-				E = TAtan1(RX + sum, A1);
+			}
+			pre = 0;
+			nex = R;
+			while (dif > 0 && pre != nex) {
+				pre = nex;
+				E = TAtan1(X + sum, A1);
 				O(M ? -E : +E, EqualDigits(R, E));
 				R = E;
-				tan = TTan(R);
-				dif = RX - tan;
-			}
-			tan = TTan(R);
-			dif = RX - tan;
-			sum += dif;
-			E = TAtan1(RX + sum, A1);
-			O(M ? -E : +E, EqualDigits(R, E));
-			sum = 0;
-			posdif = +dif;
-			Z = posdif.Venom.Zerone;
-			if (Z > 0) {
-				var Dig = posdif.Numer.Digits;
-				if (Dig > 0)
-					Z -= Dig - 1;
-			}
-		End:
-			if (Z == 0 || Z < maxDepth) {
-				var c = 5u;
-				var b = 3u;
-				var a = 1u;
-				var T = +TTan(R);
-				var P = R;
-				var I = new BugNum(1, Z > 0 ? BugInt.Pow(10, Z) : 10);
-				while (T != RX) {
-					if (T < RX) {
-						var RI = R + I * c;
-						var TT = +TTan(RI);
-						if (TT > RX) {
-							if (c == 1) {
-								I /= 10; Z++; c = 5; b = 3;
-							} else { c = b; b = a; }
-						} else {
-							O(M ? -R : +R, EqualDigits(R, RI));
-							R = RI;
-							T = TT;
-						}
-					} else {
-						var RI = R - I * c;
-						var TT = +TTan(RI);
-						if (TT < RX) {
-							if (c == 1) {
-								I /= 10; Z++; c = 5; b = 3;
-							} else { c = b; b = a; }
-						} else {
-							O(M ? -R : +R, EqualDigits(R, RI));
-							R = RI;
-							T = TT;
-						}
-					}
-					if (I == 0) { break; }
-				}
+				nex = E;
+				tan = TTan(E);
+				dif = X - tan;
+				sum += dif;
 			}
 			return M ? -R : +R;
 		}
@@ -1020,103 +1017,43 @@
 		#region #method# TAtanOfTan(X) 
 		/// <summary>Функция возвращает обратный тангенс угла с проверкой и уточнением тангенсом)</summary>
 		public static BugNum TAtanOfTan(BugNum X) {
-			if (X == BugNum.Zer) return BugNum.Zer;
+			if (X == 0) return 0;
 			var M = false;
-			if (X < BugNum.Zer) { X = +X; M = true; }
-			var RX = X;
-			var A1 = X<new BugNum(3,4);
-			var XX = X * X;
-			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
-			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
-			var R = (C / B) * X;
+			if (X < 0) { X = +X; M = true; }
+			var A1 = X < new BugNum(3, 4);
+			var R = TAtan1(X, A1);
 			var tan = TTan(R);
-			var dif = RX - tan;
-			var posdif = +dif;
-			var Z = posdif.Venom.Zerone;
-			if (Z > 0) {
-				var Dig = posdif.Numer.Digits;
-				if (Dig > 0) {
-					Z -= Dig - 1;
-				}
-				if (Dig < 10) goto End;
-			}
+			var dif = X - tan;
 			BugNum sum = dif;
-			var E = TAtan1(RX + sum, A1);
-			R = E;
-			var max = maxDepth;
-			Z = 0;
-			while (dif > 0 && Z < max) {
-				Z++;
-				sum += dif;
-				E = TAtan1(RX + sum, A1);
-				R = E;
+			BugNum pre = 0;
+			BugNum nex = R;
+			while (dif > 0 && pre != nex) {
+				pre = nex;
+				R = TAtan1(X + sum, A1);
+				nex = R;
 				tan = TTan(R);
-				dif = RX - tan;
-			}
-			Z = 0;
-			while (dif < 0 && Z < max) {
-				Z++;
+				dif = X - tan;
 				sum += dif;
-				E = TAtan1(RX + sum, A1);
-				R = E;
-				tan = TTan(R);
-				dif = RX - tan;
 			}
-			Z = 0;
-			while (dif > 0 && Z < max) {
-				Z++;
+			pre = 0;
+			nex = R;
+			while (dif < 0 && pre != nex) {
+				pre = nex;
+				R = TAtan1(X + sum, A1);
+				nex = R;
+				tan = TTan(R);
+				dif = X - tan;
 				sum += dif;
-				E = TAtan1(RX + sum, A1);
-				R = E;
+			}
+			pre = 0;
+			nex = R;
+			while (dif > 0 && pre != nex) {
+				pre = nex;
+				R = TAtan1(X + sum, A1);
+				nex = R;
 				tan = TTan(R);
-				dif = RX - tan;
-			}
-			tan = TTan(R);
-			dif = RX - tan;
-			sum += dif;
-			//E = TAtan1(RX + sum, A1);
-			sum = 0;
-			posdif = +dif;
-			Z = posdif.Venom.Zerone;
-			if (Z > 0) {
-				var Dig = posdif.Numer.Digits;
-				if (Dig > 0)
-					Z -= Dig - 1;
-			}
-		End:
-			if (Z == 0 || Z < maxDepth) {
-				var c = 5u;
-				var b = 3u;
-				var a = 1u;
-				var T = +TTan(R);
-				var P = R;
-				var I = new BugNum(1, Z > 0 ? BugInt.Pow(10, Z) : 10);
-				while (T != RX) {
-					if (T < RX) {
-						var RI = R + I * c;
-						var TT = +TTan(RI);
-						if (TT > RX) {
-							if (c == 1) {
-								I /= 10; Z++; c = 5; b = 3;
-							} else { c = b; b = a; }
-						} else {
-							R = RI;
-							T = TT;
-						}
-					} else {
-						var RI = R - I * c;
-						var TT = +TTan(RI);
-						if (TT < RX) {
-							if (c == 1) {
-								I /= 10; Z++; c = 5; b = 3;
-							} else { c = b; b = a; }
-						} else {
-							R = RI;
-							T = TT;
-						}
-					}
-					if (I == 0) { break; }
-				}
+				dif = X - tan;
+				sum += dif;
 			}
 			return M ? -R : +R;
 		}
@@ -1142,8 +1079,6 @@
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
 			R += (C / B) * X;
 			if (Y > 0) {
-				//X = Y * new BugNum(1, 8);
-				//Y = 0; goto Next;
 				R += Atan0125[--Y];
 			}
 			if (L) R = PId2 - R;
@@ -1151,12 +1086,12 @@
 		}
 		#endregion
 		#region #method# TAtan1(X) 
-		private static BugNum TAtan1(BugNum X,bool A) {
+		private static BugNum TAtan1(BugNum X, bool A) {
 			if (X == BugNum.Zer) return BugNum.Zer;
 			var M = false;
 			if (X < BugNum.Zer) { X = +X; M = true; }
 			var I = false;
-			if ((A && X > BugNum.One) ||(!A && X>BugNum.V05)) { X = BugNum.One / X; I = true; }
+			if ((A && X > BugNum.One) || (!A && X > BugNum.V05)) { X = BugNum.One / X; I = true; }
 			var XX = X * X;
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
@@ -1198,17 +1133,21 @@
 			var R = 1 - (XX / 2);
 			var I = 0;
 			var J = 0;
-			var Max = SinCosTanMax;
-			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
+			var maxVenom = BugNum.maxVenom;
+			var Max = SinCosTanLow > maxVenom ? SinCosTanMax : SinCosTanGen(maxVenom);
 			var Div = SinCosTanDiv;
-			while (I < Max) {
+			var One = BugNum.One;
+			while (I++ < Max) {
 				var XXA = XXX *= XX;
+				var A = Div[J++];
+				XXA /= A;
+				R += XXA;
+				if (I == Max) { break; }
+				if (A > maxVenom) { break; }
 				var XXB = XXX *= XX;
-				if (XXA == 0 && XXB == 0) break;
-				XXA /= Div[J++]; XXB /= Div[J++];
-				if (XXA == 0 && XXB == 0) break;
-				R += (XXA - XXB);
-				I++;
+				var B = Div[J++];
+				XXB /= B;
+				R -= XXB;
 			}
 			if (R < 0) R = +R;
 			if (M) R = -R;
@@ -1229,17 +1168,21 @@
 			var R = 1 - (XX / 2);
 			var I = 0;
 			var J = 0;
-			var Max = SinCosTanMax;
-			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
+			var maxVenom = BugNum.maxVenom;
+			var Max = SinCosTanLow > maxVenom ? SinCosTanMax : SinCosTanGen(maxVenom);
 			var Div = SinCosTanDiv;
-			while (I < Max) {
+			var One = BugNum.One;
+			while (I++ < Max) {
 				var XXA = XXX *= XX;
+				var A = Div[J++];
+				XXA /= A;
+				R += XXA;
+				if (I == Max) { break; }
+				if (A > maxVenom) { break; }
 				var XXB = XXX *= XX;
-				if (XXA == 0 && XXB == 0) break;
-				XXA /= Div[J++]; XXB /= Div[J++];
-				if (XXA == 0 && XXB == 0) break;
-				R += (XXA - XXB);
-				I++;
+				var B = Div[J++];
+				XXB /= B;
+				R -= XXB;
 			}
 			if (R < 0) R = +R;
 			if (M) R = -R;
@@ -1264,17 +1207,21 @@
 			var R = 1 - (XX / 2);
 			var I = 0;
 			var J = 0;
-			var Max = SinCosTanMax;
-			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
+			var maxVenom = BugNum.maxVenom;
+			var Max = SinCosTanLow > maxVenom ? SinCosTanMax : SinCosTanGen(maxVenom);
 			var Div = SinCosTanDiv;
-			while (I < Max) {
+			var One = BugNum.One;
+			while (I++ < Max) {
 				var XXA = XXX *= XX;
+				var A = Div[J++];
+				XXA /= A;
+				R += XXA;
+				if (I == Max) { break; }
+				if (A > maxVenom) { break; }
 				var XXB = XXX *= XX;
-				if (XXA == 0 && XXB == 0) break;
-				XXA /= Div[J++]; XXB /= Div[J++];
-				if (XXA == 0 && XXB == 0) break;
-				R += (XXA - XXB);
-				I++;
+				var B = Div[J++];
+				XXB /= B;
+				R -= XXB;
 			}
 			if (R < 0) R = +R;
 			if (M) R = -R;
@@ -1302,17 +1249,21 @@
 			var R = 1 - (XX / 2);
 			var I = 0;
 			var J = 0;
-			var Max = SinCosTanMax;
-			while (Max == 0 || SinCosTanFor != maxDepth) { Max = SinCosTanGen(); }
+			var maxVenom = BugNum.maxVenom;
+			var Max = SinCosTanLow > maxVenom ? SinCosTanMax : SinCosTanGen(maxVenom);
 			var Div = SinCosTanDiv;
-			while (I < Max) {
+			var One = BugNum.One;
+			while (I++ < Max) {
 				var XXA = XXX *= XX;
+				var A = Div[J++];
+				XXA /= A;
+				R += XXA;
+				if (I == Max) { break; }
+				if (A > maxVenom) { break; }
 				var XXB = XXX *= XX;
-				if (XXA == 0 && XXB == 0) break;
-				XXA /= Div[J++]; XXB /= Div[J++];
-				if (XXA == 0 && XXB == 0) break;
-				R += (XXA - XXB);
-				I++;
+				var B = Div[J++];
+				XXB /= B;
+				R -= XXB;
 			}
 			if (R < 0) R = +R;
 			if (M) R = -R;
