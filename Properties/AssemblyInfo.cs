@@ -7,5 +7,5 @@
 [assembly: System.Reflection.AssemblyTrademark("Wholemy")]
 [assembly: System.Reflection.AssemblyCulture("")]
 [assembly: System.Runtime.InteropServices.ComVisible(false)]
-[assembly: System.Reflection.AssemblyVersion("2025.1025.1715.19")]
-[assembly: System.Reflection.AssemblyFileVersion("2025.1025.1715.19")]
+[assembly: System.Reflection.AssemblyVersion("2025.1026.0133.20")]
+[assembly: System.Reflection.AssemblyFileVersion("2025.1026.0133.20")]

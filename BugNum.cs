@@ -7,6 +7,8 @@
 	/// тригонометрических функций будет чуть более 50 знаков после запятой)
 	/// Единственный рациональный способ сделать разную глубину, дублировать все содержимое
 	/// структуры с другим именованием полностью и дополнить методы конвертирования значений из других структур)
+	/// 
+	/// Внимание! Основные операторы числа отличаются от принятых в C#) Знаки -(neg) +(pos) !(not) работают как должны были бы)
 	/// </remarks>
 	public struct BugNum {
 		#region #field# Atan0125 
@@ -279,7 +281,7 @@
 		/// </remarks>
 		public static int MaxChars {
 			get { return maxChars; }
-			set { if (value < 0) value = +value; if (value > maxDepth) maxChars = maxDepth; else maxChars = value; }
+			set { if (value < 0) value = -value; if (value > maxDepth) maxChars = maxDepth; else maxChars = value; }
 		}
 		private static int maxChars = maxDepth / 2;
 		#endregion
@@ -511,7 +513,7 @@
 			var LMinus = false;
 			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = +R; RMinus = true; }
+			if (R < 0) { R = -R; RMinus = true; }
 			var Result = new BugNum(L.Numer, L.Venom * R);
 			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
 			if (LMinus ^ RMinus) Result = -Result;
@@ -536,7 +538,7 @@
 			var LMinus = false;
 			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = +R; RMinus = true; }
+			if (R < 0) { R = -R; RMinus = true; }
 			var Result = new BugNum(L.Numer, L.Venom * R);
 			Result = (L - new BugNum(Result.Numer - (Result.Numer % Result.Venom), Result.Venom) * R);
 			if (LMinus) Result = R - Result;
@@ -559,7 +561,7 @@
 			var LMinus = false;
 			if (L < 0) { L = +L; LMinus = true; }
 			var RMinus = false;
-			if (R < 0) { R = +R; RMinus = true; }
+			if (R < 0) { R = -R; RMinus = true; }
 			var Result = new BugNum(L.Numer * R, L.Venom);
 			//if((LMinus && !RMinus) || (!LMinus && RMinus)) Result = -Result;
 			if (LMinus ^ RMinus) Result = -Result;
@@ -615,8 +617,8 @@
 			if (L.Numer == 0) return L;
 			if (E < 0) {
 				BugInt numerator = L.Numer;
-				BugInt numerator2 = BugInt.Pow(L.Venom, +E);
-				BugInt denominator = BugInt.Pow(numerator, +E);
+				BugInt numerator2 = BugInt.Pow(L.Venom, -E);
+				BugInt denominator = BugInt.Pow(numerator, -E);
 				return new BugNum(numerator2, denominator);
 			}
 			BugInt numerator3 = BugInt.Pow(L.Numer, E);
@@ -1065,6 +1067,7 @@
 		private static uint AtanTestBot = 3;
 		private static BugInt AtanTestTops = AtanTestTop;
 		private static BugInt AtanTestBots = AtanTestBot;
+		#region #method# AtanTestGen(Depth) 
 		public static void AtanTestGen(int Depth) {
 			var Div = AtanTestDiv;
 			var Cnt = AtanTestCnt;
@@ -1080,7 +1083,7 @@
 			var Bot = AtanTestBot;
 			var Tops = AtanTestTops;
 			var Bots = AtanTestBots;
-			while (Cnt<Depth) {
+			while (Cnt < Depth) {
 				Div[Cnt++] = new BugNum() { Numer = Tops, Venom = Bots };
 				Top += 2; Tops *= Top; Bot += 2; Bots *= Bot;
 			}
@@ -1091,6 +1094,7 @@
 			AtanTestTops = Tops;
 			AtanTestBots = Bots;
 		}
+		#endregion
 		#region #method# TAtanOfTanTest(X) 
 		public static BugNum TAtanOfTanTest(BugNum X, System.Action<BugNum, int> O) {
 			if (X == 0) return 0;
@@ -1141,6 +1145,8 @@
 			}
 			return M ? -R : +R;
 		}
+		#endregion
+		#region #method# TAtanTest(X, A) 
 		/// <summary>Функция возвращает обратный тангенс угла)</summary>
 		public static BugNum TAtanTest(BugNum X, bool A) {
 			if (X == 0) return 0;
@@ -1148,11 +1154,12 @@
 			if (X < 0) { X = +X; M = true; }
 			var I = false;
 			if ((A && X > BugNum.One) || (!A && X > BugNum.V05)) { X = BugNum.One / X; I = true; }
+			if (X == 0) return 0;
 			var XX = X * X;
 			var Y = XX / (1 + XX);
 			var YY = Y;
 			var R = BugNum.One;
-			var m = maxDepth/3;
+			var m = maxDepth + maxDepth / 2;
 			if (AtanTestDiv == null || AtanTestCnt < m) AtanTestGen(m);
 			for (int i = 0; i < m; i++) {
 				R += AtanTestDiv[i] * YY; YY *= Y;
@@ -1374,6 +1381,29 @@
 			if (M) R = -R;
 			if (!S) { C = R; S = true; goto Next; }
 			R /= C;
+			var Int = R.Numer / R.Venom;
+			var MD = maxDepth;
+			if (Int>0) {
+				MD -= Int.Digits * 3;
+			} else {
+				MD-=1;
+			}
+			if(MD>0) {
+				var Rnd = BugInt.Pow(10, MD);
+				if (R.Venom > Rnd) {
+					var D = R.Venom / Rnd;
+					if (D > 1) {
+						R.Venom /= D;
+						R.Numer /= D;
+					}
+				}
+			} else {
+				if(MD == 0) {
+					R = Int;
+				} else {
+					return BugNum.Nan;
+				}
+			}
 			return R;
 		}
 		#endregion
