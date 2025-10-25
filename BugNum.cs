@@ -1058,6 +1058,111 @@
 			return M ? -R : +R;
 		}
 		#endregion
+		private static BugNum[] AtanTestDiv;
+		private static int[] AtanTestDep;
+		private static int AtanTestCnt = 0;
+		private static uint AtanTestTop = 2;
+		private static uint AtanTestBot = 3;
+		private static BugInt AtanTestTops = AtanTestTop;
+		private static BugInt AtanTestBots = AtanTestBot;
+		public static void AtanTestGen(int Depth) {
+			var Div = AtanTestDiv;
+			var Cnt = AtanTestCnt;
+			if (Div == null) {
+				AtanTestDiv = Div = new BugNum[Depth];
+			}
+			if (Cnt > 0 && Cnt < Depth) {
+				var NewDiv = new BugNum[Depth];
+				System.Array.Copy(Div, NewDiv, Cnt);
+				Div = NewDiv;
+			}
+			var Top = AtanTestTop;
+			var Bot = AtanTestBot;
+			var Tops = AtanTestTops;
+			var Bots = AtanTestBots;
+			while (Cnt<Depth) {
+				Div[Cnt++] = new BugNum() { Numer = Tops, Venom = Bots };
+				Top += 2; Tops *= Top; Bot += 2; Bots *= Bot;
+			}
+			AtanTestDiv = Div;
+			AtanTestCnt = Cnt;
+			AtanTestTop = Top;
+			AtanTestBot = Bot;
+			AtanTestTops = Tops;
+			AtanTestBots = Bots;
+		}
+		#region #method# TAtanOfTanTest(X) 
+		public static BugNum TAtanOfTanTest(BugNum X, System.Action<BugNum, int> O) {
+			if (X == 0) return 0;
+			var M = false;
+			if (X < 0) { X = +X; M = true; }
+			var A1 = X < new BugNum(3, 4);
+			var R = TAtanTest(X, A1);
+			O(R, 0);
+			var tan = TTan(R);
+			var dif = X - tan;
+			BugNum E = R;
+			BugNum sum = dif;
+			BugNum pre = 0;
+			BugNum nex = R;
+			while (dif > 0 && pre != nex) {
+				pre = nex;
+				E = TAtanTest(X + sum, A1);
+				O(M ? -E : +E, EqualDigits(R, E));
+				R = E;
+				nex = E;
+				tan = TTan(E);
+				dif = X - tan;
+				sum += dif;
+			}
+			pre = 0;
+			nex = R;
+			while (dif < 0 && pre != nex) {
+				pre = nex;
+				E = TAtanTest(X + sum, A1);
+				O(M ? -E : +E, EqualDigits(R, E));
+				R = E;
+				nex = E;
+				tan = TTan(E);
+				dif = X - tan;
+				sum += dif;
+			}
+			pre = 0;
+			nex = R;
+			while (dif > 0 && pre != nex) {
+				pre = nex;
+				E = TAtanTest(X + sum, A1);
+				O(M ? -E : +E, EqualDigits(R, E));
+				R = E;
+				nex = E;
+				tan = TTan(E);
+				dif = X - tan;
+				sum += dif;
+			}
+			return M ? -R : +R;
+		}
+		/// <summary>Функция возвращает обратный тангенс угла)</summary>
+		public static BugNum TAtanTest(BugNum X, bool A) {
+			if (X == 0) return 0;
+			var M = false;
+			if (X < 0) { X = +X; M = true; }
+			var I = false;
+			if ((A && X > BugNum.One) || (!A && X > BugNum.V05)) { X = BugNum.One / X; I = true; }
+			var XX = X * X;
+			var Y = XX / (1 + XX);
+			var YY = Y;
+			var R = BugNum.One;
+			var m = maxDepth/3;
+			if (AtanTestDiv == null || AtanTestCnt < m) AtanTestGen(m);
+			for (int i = 0; i < m; i++) {
+				R += AtanTestDiv[i] * YY; YY *= Y;
+			}
+			R *= Y / X;
+			if (I) R = PId2 - R;
+			return M ? -R : R;
+		}
+		#endregion
+
 		#region #method# TAtan(X) 
 		/// <summary>Функция возвращает обратный тангенс угла)</summary>
 		public static BugNum TAtan(BugNum X) {

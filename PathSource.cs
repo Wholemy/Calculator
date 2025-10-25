@@ -135,75 +135,47 @@
 		}
 		#endregion
 		#region #method# TAtanOfTan(X) 
-		/// <summary>Функция возвращает обратный тангенс угла)</summary>
+		/// <summary>Функция возвращает обратный тангенс угла с проверкой и уточнением тангенсом)</summary>
 		public static double TAtanOfTan(double X) {
 			if (X == 0) return 0;
 			var M = false;
-			if (X < 0) { X = -X; M = true; }
-			var RX = X;
-			var L = false;
-			var Y = 0;
-			var R = 0.0;
-			if (X >= 10) { L = true; X = 1 / X; goto Next; }
-			Y = (int)(X * 8);
-			if (Y < 0) Y++;
-			var XX = Y / 8.0;
-			X = (X - XX) / (X * XX + 1);
-		Next:
-			XX = X * X;
-			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
-			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
-			R += (C / B) * X;
-			if (Y > 0) {
-				R += Atan0125[--Y];
-			}
-			if (L) R = (System.Math.PI / 2.0) - R;
+			if (X < 0) { X = +X; M = true; }
+			var A1 = X < 0.75;
+			var R = TAtan1(X, A1);
 			var tan = TTan(R);
-			var dif = RX - tan;
-			var sum = 0.0;
-			var posdif = +dif;
-			while (dif != 0) {
-				sum += dif;
-				var RR = TAtan1(RX + sum);
-				tan = TTan(RR);
-				dif = RX - tan;
-				var nex = +dif;
-				if (nex < posdif) {
-					R = RR;
-					posdif = nex;
-				} else { break; }
-			}
-			var max = 17;
-			while (dif < 0 && max-- > 0) {
-				sum += dif;
-				R = TAtan1(RX + sum);
+			var dif = X - tan;
+			var sum = dif;
+			var pre = 0.0;
+			var nex = R;
+			while (dif > 0 && pre != nex) {
+				pre = nex;
+				R = TAtan1(X + sum, A1);
+				nex = R;
 				tan = TTan(R);
-				dif = RX - tan;
-			}
-			max = 17;
-			while (dif > 0 && max-- > 0) {
+				dif = X - tan;
 				sum += dif;
-				R = TAtan1(RX + sum);
+			}
+			pre = 0;
+			nex = R;
+			while (dif < 0 && pre != nex) {
+				pre = nex;
+				R = TAtan1(X + sum, A1);
+				nex = R;
 				tan = TTan(R);
-				dif = RX - tan;
-			}
-			tan = TTan(R);
-			dif = RX - tan;
-			sum = 0.0;
-			posdif = +dif;
-			while (dif != 0) {
+				dif = X - tan;
 				sum += dif;
-				var RR = TAtan1(RX + sum);
-				tan = TTan(RR);
-				dif = RX - tan;
-				var nex = +dif;
-				if (nex < posdif) {
-					R = RR;
-					posdif = nex;
-				} else { break; }
 			}
-			if (R < 0) R = +R;
-			return M ? -R : R;
+			pre = 0;
+			nex = R;
+			while (dif > 0 && pre != nex) {
+				pre = nex;
+				R = TAtan1(X + sum, A1);
+				nex = R;
+				tan = TTan(R);
+				dif = X - tan;
+				sum += dif;
+			}
+			return M ? -R : +R;
 		}
 		#endregion
 		#region #method# TAtanOfTan2(Y, X) 
@@ -246,13 +218,13 @@
 			return M ? -R : R;
 		}
 		#endregion
-		#region #private# #method# TAtan1(X) 
-		private static double TAtan1(double X) {
+		#region #private# #method# TAtan1(X, A) 
+		private static double TAtan1(double X, bool A) {
 			if (X == 0) return 0;
 			var M = false;
-			if (X < 0) { X = -X; M = true; }
+			if (X < 0) { X = +X; M = true; }
 			var I = false;
-			if (X > 1) { X = 1 / X; I = true; }
+			if ((A && X > 1) || (!A && X > 0.5)) { X = 1 / X; I = true; }
 			var XX = X * X;
 			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
 			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
@@ -300,12 +272,16 @@
 			var A = new double[Max];
 			var Mul = SinCosTanMul;
 			while (I < Max) {
+				var AA = A[I];
 				var XXA = XXX *= XX;
+				XXA *= Mul[J++];
+				AA += XXA;
+				if (I + 1 == Max) { A[I] = AA; I++; break; }
 				var XXB = XXX *= XX;
-				if (XXA == 0 && XXB == 0) break;
-				XXA *= Mul[J++]; XXB *= Mul[J++];
-				if (XXA == 0 && XXB == 0) break;
-				A[I++] = XXA - XXB;
+				XXB *= Mul[J++];
+				AA -= XXB;
+				A[I] = AA;
+				I++;
 			}
 			var RR = 0.0;
 			if (I > 0) {
@@ -358,12 +334,16 @@
 			var A = new double[Max];
 			var Mul = SinCosTanMul;
 			while (I < Max) {
+				var AA = A[I];
 				var XXA = XXX *= XX;
+				XXA *= Mul[J++];
+				AA += XXA;
+				if (I + 1 == Max) { A[I] = AA; I++; break; }
 				var XXB = XXX *= XX;
-				if (XXA == 0 && XXB == 0) break;
-				XXA *= Mul[J++]; XXB *= Mul[J++];
-				if (XXA == 0 && XXB == 0) break;
-				A[I++] = XXA - XXB;
+				XXB *= Mul[J++];
+				AA -= XXB;
+				A[I] = AA;
+				I++;
 			}
 			var RR = 0.0;
 			if (I > 0) {
@@ -423,12 +403,16 @@
 			var A = new double[Max];
 			var Mul = SinCosTanMul;
 			while (I < Max) {
+				var AA = A[I];
 				var XXA = XXX *= XX;
+				XXA *= Mul[J++];
+				AA += XXA;
+				if (I + 1 == Max) { A[I] = AA; I++; break; }
 				var XXB = XXX *= XX;
-				if (XXA == 0 && XXB == 0) break;
-				XXA *= Mul[J++]; XXB *= Mul[J++];
-				if (XXA == 0 && XXB == 0) break;
-				A[I++] = XXA - XXB;
+				XXB *= Mul[J++];
+				AA -= XXB;
+				A[I] = AA;
+				I++;
 			}
 			var RR = 0.0;
 			if (I > 0) {
@@ -486,12 +470,16 @@
 			var A = new double[Max];
 			var Mul = SinCosTanMul;
 			while (I < Max) {
+				var AA = A[I];
 				var XXA = XXX *= XX;
+				XXA *= Mul[J++];
+				AA += XXA;
+				if (I + 1 == Max) { A[I] = AA; I++; break; }
 				var XXB = XXX *= XX;
-				if (XXA == 0 && XXB == 0) break;
-				XXA *= Mul[J++]; XXB *= Mul[J++];
-				if (XXA == 0 && XXB == 0) break;
-				A[I++] = XXA - XXB;
+				XXB *= Mul[J++];
+				AA -= XXB;
+				A[I] = AA;
+				I++;
 			}
 			var RR = 0.0;
 			if (I > 0) {

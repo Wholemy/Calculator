@@ -1325,6 +1325,7 @@ namespace Wholemy {
 					case "sin": this.Value = BugNum.TSin(this.Value); break;
 					case "tan": this.Value = BugNum.TTan(this.Value); break;
 					case "atan": this.Value = BugNum.TAtan(this.Value); break;
+					case "atantest": this.Value = BugNum.TAtanOfTanTest(this.Value, new System.Action<BugNum, int>(Dir.ProcessNum)); break;
 					case "atanoftan": this.Value = BugNum.TAtanOfTan(this.Value, new System.Action<BugNum,int>(Dir.ProcessNum)); break;
 					case "pos": if (this.Value < 0) this.Value = +this.Value; break;
 					case "neg": if (this.Value >= 0) this.Value = -this.Value; break;
