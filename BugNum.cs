@@ -951,19 +951,6 @@
 		#region #field# TAtanArray 
 		public static BugNum[] TAtanArray;
 		#endregion
-		#region #method# TAtanOfTan2(Y, X) 
-		public static BugNum TAtanOfTan2(BugNum Y, BugNum X) {
-			if (X == 0) {
-				if (Y == 0) return 0;
-				else if (Y > 0) return PId2; else return -PId2;
-			}
-			var A = TAtanOfTan(Y / X);
-			if (X < 0) {
-				if (Y >= 0) A += PI; else A -= PI;
-			}
-			return A;
-		}
-		#endregion
 		#region #method# TAtanOfTanPrev(X, O) 
 		/// <summary>Функция возвращает обратный тангенс угла с проверкой и уточнением тангенсом)</summary>
 		public static BugNum TAtanOfTanPrev(BugNum X, System.Action<BugNum, int> O) {
@@ -1043,6 +1030,69 @@
 			return M ? -R : +R;
 		}
 		#endregion
+		#region #method# TAtan1Prev(X, A) 
+		private static BugNum TAtan1Prev(BugNum X, bool A) {
+			if (X == BugNum.Zer) return BugNum.Zer;
+			var M = false;
+			if (X < BugNum.Zer) { X = +X; M = true; }
+			var I = false;
+			if ((A && X > BugNum.One) || (!A && X > BugNum.V05)) { X = BugNum.One / X; I = true; }
+			var XX = X * X;
+			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
+			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
+			var R = (C / B) * X;
+			if (I) R = PId2 - R;
+			return M ? -R : R;
+		}
+		#endregion
+		private static BugNum[] AtanTestDiv;
+		private static int[] AtanTestDep;
+		private static int AtanTestCnt = 0;
+		private static uint AtanTestTop = 2;
+		private static uint AtanTestBot = 3;
+		private static BugInt AtanTestTops = AtanTestTop;
+		private static BugInt AtanTestBots = AtanTestBot;
+		#region #method# AtanTestGen(Depth) 
+		public static void AtanTestGen(int Depth) {
+			var Div = AtanTestDiv;
+			var Cnt = AtanTestCnt;
+			if (Div == null) {
+				AtanTestDiv = Div = new BugNum[Depth];
+			}
+			if (Cnt > 0 && Cnt < Depth) {
+				var NewDiv = new BugNum[Depth];
+				System.Array.Copy(Div, NewDiv, Cnt);
+				Div = NewDiv;
+			}
+			var Top = AtanTestTop;
+			var Bot = AtanTestBot;
+			var Tops = AtanTestTops;
+			var Bots = AtanTestBots;
+			while (Cnt < Depth) {
+				Div[Cnt++] = new BugNum() { Numer = Tops, Venom = Bots };
+				Top += 2; Tops *= Top; Bot += 2; Bots *= Bot;
+			}
+			AtanTestDiv = Div;
+			AtanTestCnt = Cnt;
+			AtanTestTop = Top;
+			AtanTestBot = Bot;
+			AtanTestTops = Tops;
+			AtanTestBots = Bots;
+		}
+		#endregion
+		#region #method# TAtanOfTan2(Y, X) 
+		public static BugNum TAtanOfTan2(BugNum Y, BugNum X) {
+			if (X == 0) {
+				if (Y == 0) return 0;
+				else if (Y > 0) return PId2; else return -PId2;
+			}
+			var A = TAtanOfTan(Y / X);
+			if (X < 0) {
+				if (Y >= 0) A += PI; else A -= PI;
+			}
+			return A;
+		}
+		#endregion
 		#region #method# TAtanOfTan(X) 
 		/// <summary>Функция возвращает обратный тангенс угла с проверкой и уточнением тангенсом)</summary>
 		public static BugNum TAtanOfTan(BugNum X) {
@@ -1114,42 +1164,40 @@
 			return M ? -R : +R;
 		}
 		#endregion
-		private static BugNum[] AtanTestDiv;
-		private static int[] AtanTestDep;
-		private static int AtanTestCnt = 0;
-		private static uint AtanTestTop = 2;
-		private static uint AtanTestBot = 3;
-		private static BugInt AtanTestTops = AtanTestTop;
-		private static BugInt AtanTestBots = AtanTestBot;
-		#region #method# AtanTestGen(Depth) 
-		public static void AtanTestGen(int Depth) {
-			var Div = AtanTestDiv;
-			var Cnt = AtanTestCnt;
-			if (Div == null) {
-				AtanTestDiv = Div = new BugNum[Depth];
+		#region #method# TAtanOfTanTest(X, O) 
+		public static BugNum TAtanOfTanTest(BugNum X, System.Action<BugNum, int> O) {
+			if (X == 0) return 0;
+			var M = false;
+			if (X < 0) { X = +X; M = true; }
+			var Int = X.Numer / X.Venom;
+			var MD = maxDepth;
+			if (Int > 0) {
+				MD -= Int.Digits * 3;
+			} else {
+				MD -= 1;
 			}
-			if (Cnt > 0 && Cnt < Depth) {
-				var NewDiv = new BugNum[Depth];
-				System.Array.Copy(Div, NewDiv, Cnt);
-				Div = NewDiv;
+			if (MD > 0) {
+				var Rnd = BugInt.Pow(10, MD);
+				if (X.Venom > Rnd) {
+					var D = X.Venom / Rnd;
+					if (D > 1) {
+						X.Venom /= D;
+						X.Numer /= D;
+					}
+				}
+			} else {
+				if (MD == 0) {
+					X = Int;
+				} else {
+					return BugNum.Nan;
+				}
 			}
-			var Top = AtanTestTop;
-			var Bot = AtanTestBot;
-			var Tops = AtanTestTops;
-			var Bots = AtanTestBots;
-			while (Cnt < Depth) {
-				Div[Cnt++] = new BugNum() { Numer = Tops, Venom = Bots };
-				Top += 2; Tops *= Top; Bot += 2; Bots *= Bot;
-			}
-			AtanTestDiv = Div;
-			AtanTestCnt = Cnt;
-			AtanTestTop = Top;
-			AtanTestBot = Bot;
-			AtanTestTops = Tops;
-			AtanTestBots = Bots;
+			var A1 = X < new BugNum(3, 4);
+			var R = TAtan1Next(X, A1);
+			return M ? -R : +R;
 		}
 		#endregion
-		#region #method# TAtanOfTanNext(X,O) 
+		#region #method# TAtanOfTanNext(X, O) 
 		public static BugNum TAtanOfTanNext(BugNum X, System.Action<BugNum, int> O) {
 			if (X == 0) return 0;
 			var M = false;
@@ -1240,7 +1288,7 @@
 			var Y = XX / (1 + XX);
 			var YY = Y;
 			var R = BugNum.One;
-			var m = maxDepth + maxDepth / 2;
+			var m = (maxDepth * 2 - maxDepth / 4) + 40;//maxDepth / 2 + 40;
 			if (AtanTestDiv == null || AtanTestCnt < m) AtanTestGen(m);
 			for (int i = 0; i < m; i++) {
 				R += AtanTestDiv[i] * YY; YY *= Y;
@@ -1311,21 +1359,6 @@
 			//	R += Atan0125[--V];
 			//}
 			if (L) R = PId2 - R;
-			return M ? -R : R;
-		}
-		#endregion
-		#region #method# TAtan1Prev(X) 
-		private static BugNum TAtan1Prev(BugNum X, bool A) {
-			if (X == BugNum.Zer) return BugNum.Zer;
-			var M = false;
-			if (X < BugNum.Zer) { X = +X; M = true; }
-			var I = false;
-			if ((A && X > BugNum.One) || (!A && X > BugNum.V05)) { X = BugNum.One / X; I = true; }
-			var XX = X * X;
-			var C = (((13852575 * XX + 216602100) * XX + 891080190) * XX + 1332431100) * XX + 654729075;
-			var B = ((((893025 * XX + 49116375) * XX + 425675250) * XX + 1277025750) * XX + 1550674125) * XX + 654729075;
-			var R = (C / B) * X;
-			if (I) R = PId2 - R;
 			return M ? -R : R;
 		}
 		#endregion

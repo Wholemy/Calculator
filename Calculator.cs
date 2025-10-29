@@ -7,11 +7,13 @@ using System.Windows.Input;
 using System.Windows.Markup.Primitives;
 using System.Windows.Media;
 using static System.Net.Mime.MediaTypeNames;
-using static Wholemy.Map;
+
 namespace Wholemy {
 	#region #class# Calculator 
 	public class Calculator : System.Windows.Application {
 		public static System.Threading.Thread WorkThread;
+		public static System.Threading.Timer WorkTimer;
+		public static System.Diagnostics.Stopwatch WorkStopwatch;
 		public static bool OpLeftMulEnable = true;
 		public static bool OpLeftMulAddToStack = false;
 		public static bool OpLeftMulValInStack = true;
@@ -77,7 +79,7 @@ namespace Wholemy {
 	#region #class# MainWindow 
 	public class MainWindow : System.Windows.Window {
 		protected override void OnClosed(EventArgs e) {
-			if(Calculator.WorkThread!=null) {
+			if (Calculator.WorkThread != null) {
 				Calculator.WorkThread.Abort();
 				Calculator.WorkThread = null;
 			}
@@ -156,6 +158,9 @@ namespace Wholemy {
 		public readonly GlobalFunctionBodrer Func;
 		public readonly GlobalSettingsBodrer Glob;
 		public MainWindow() {
+			System.Windows.Media.TextOptions.SetTextRenderingMode(this, TextRenderingMode.Grayscale);
+			System.Windows.Media.TextOptions.SetTextFormattingMode(this, TextFormattingMode.Ideal);
+			System.Windows.Media.TextOptions.SetTextHintingMode(this, TextHintingMode.Animated);
 			A = new NumberBodrer(this, "A") { Visibility = Visibility.Collapsed };
 			B = new NumberBodrer(this, "B") { Visibility = Visibility.Collapsed };
 			R = new NumberBodrer(this, "R") { Visibility = Visibility.Collapsed };
@@ -167,7 +172,8 @@ namespace Wholemy {
 			Func = new GlobalFunctionBodrer(this);
 			Glob = new GlobalSettingsBodrer(this);
 			this.WindowState = System.Windows.WindowState.Normal;
-			this.Title = "Весьмой калькулятор";
+			var Version = (System.Reflection.AssemblyFileVersionAttribute[])System.Reflection.Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(System.Reflection.AssemblyFileVersionAttribute), false);
+			this.Title = "Весьмой калькулятор " + Version[0].Version.ToString();
 			Background = Colors.Background;
 			Foreground = Colors.Foreground;
 			this.Content = ScrollViewer;
@@ -297,6 +303,7 @@ namespace Wholemy {
 		private void TextSizef_TextChanged(object sender, TextChangedEventArgs e) {
 			try {
 				Parent.SizefRaise(int.Parse(TextSizef.Text));
+			} catch {
 			} finally {
 				TextSizef.Text = Calculator.Sizef.ToString();
 			}
@@ -304,23 +311,37 @@ namespace Wholemy {
 		private void TextWeigf_TextChanged(object sender, TextChangedEventArgs e) {
 			try {
 				Parent.WeigfRaise(int.Parse(TextWeigf.Text));
+			} catch {
 			} finally {
 				TextWeigf.Text = Calculator.Weigf.ToString();
 			}
 		}
 
 		private void TextDepth_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
-			if (int.TryParse(TextDepth.Text, out int R) && R >= 0) {
-				BugNum.MaxDepth = R;
+			try {
+				if (int.TryParse(TextDepth.Text, out int R) && R >= 0 && R <= 10000) {
+					if (BugNum.MaxChars == BugNum.MaxDepth) {
+						BugNum.MaxDepth = R;
+						BugNum.MaxChars = R;
+					} else {
+						BugNum.MaxDepth = R;
+					}
+				}
+			} catch {
+			} finally {
+				TextDepth.Text = BugNum.MaxDepth.ToString();
+				TextChars.Text = BugNum.MaxChars.ToString();
 			}
-			TextDepth.Text = BugNum.MaxDepth.ToString();
-			TextChars.Text = BugNum.MaxChars.ToString();
 		}
 		private void TextChars_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
-			if (int.TryParse(TextChars.Text, out int R) && R >= 0) {
-				BugNum.MaxChars = R;
+			try {
+				if (int.TryParse(TextChars.Text, out int R) && R >= 0) {
+					BugNum.MaxChars = R;
+				}
+			} catch {
+			} finally {
+				TextChars.Text = BugNum.MaxChars.ToString();
 			}
-			TextChars.Text = BugNum.MaxChars.ToString();
 		}
 	}
 	#endregion
@@ -992,6 +1013,20 @@ namespace Wholemy {
 			Margin = new System.Windows.Thickness(0, 0, 8, 8),
 		};
 		#endregion
+		#region #field# TextTicks 
+		public readonly System.Windows.Controls.TextBox TextTicks = new System.Windows.Controls.TextBox() {
+			VerticalContentAlignment = System.Windows.VerticalAlignment.Center,
+			VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+			Background = Colors.Background,
+			Foreground = Colors.Foreground,
+			BorderThickness = new Thickness(0),
+			IsReadOnly = true,
+			IsReadOnlyCaretVisible = true,
+			Margin = new System.Windows.Thickness(8, 8, 0, 0),
+			FontSize = Calculator.Sizef,
+			FontFamily = Calculator.GetOnce(Calculator.Weigf)
+		};
+		#endregion
 		public readonly new DirectStackBorder Parent;
 		public readonly Button Label;
 		public readonly Button DCopy;
@@ -1125,6 +1160,7 @@ namespace Wholemy {
 			PanelMain.Children.Add(CBackspace);
 			CBackspace.Click += CBackspace_Click;
 			CBackspace.Enter += N_Enter;
+			PanelMain.Children.Add(TextTicks);
 		}
 
 		private void DCopy_Click(object sender, RoutedEventArgs e) {
@@ -1325,8 +1361,9 @@ namespace Wholemy {
 					case "sin": this.Value = BugNum.TSin(this.Value); break;
 					case "tan": this.Value = BugNum.TTan(this.Value); break;
 					case "atan": this.Value = BugNum.TAtan(this.Value); break;
+					case "atanoftantest": this.Value = BugNum.TAtanOfTanTest(this.Value, new System.Action<BugNum, int>(Dir.ProcessNum)); break;
 					case "atanoftanprev": this.Value = BugNum.TAtanOfTanPrev(this.Value, new System.Action<BugNum, int>(Dir.ProcessNum)); break;
-					case "atanoftan": this.Value = BugNum.TAtanOfTanNext(this.Value, new System.Action<BugNum,int>(Dir.ProcessNum)); break;
+					case "atanoftan": this.Value = BugNum.TAtanOfTanNext(this.Value, new System.Action<BugNum, int>(Dir.ProcessNum)); break;
 					case "pos": if (this.Value < 0) this.Value = +this.Value; break;
 					case "neg": if (this.Value >= 0) this.Value = -this.Value; break;
 					case "not": this.Value = !this.Value; break;
@@ -1697,22 +1734,41 @@ namespace Wholemy {
 			this.Dispatcher.BeginInvoke(new System.Action<string>(ProcessEndText), System.Windows.Threading.DispatcherPriority.Input, new object[] { val });
 		}
 		public void ProcessNumSend(string val, int cnt) {
-			this.Dispatcher.BeginInvoke(new System.Action<string, int>(ProcessNumText), System.Windows.Threading.DispatcherPriority.Input, new object[] { val,cnt });
+			this.Dispatcher.BeginInvoke(new System.Action<string, int>(ProcessNumText), System.Windows.Threading.DispatcherPriority.Input, new object[] { val, cnt });
 		}
 		public void ProcessNumText(string val, int cnt) {
 			TextResult.Background = Colors.BackgroundWork;
 			TextResult.Text = val;
-			if(cnt<val.Length) {
+			if (cnt < val.Length) {
 				TextResult.SelectionBrush = Colors.Background;
-				TextResult.Select(0,cnt);
+				TextResult.Select(0, cnt);
+			}
+			if(Calculator.WorkStopwatch!=null) {
+				TextTicks.Text = Calculator.WorkStopwatch.Elapsed.ToString();
 			}
 		}
 		public void ProcessEndText(string val) {
 			TextResult.Background = Colors.Background;
 			TextResult.Text = val;
+			if (Calculator.WorkStopwatch != null) {
+				TextTicks.Text = Calculator.WorkStopwatch.Elapsed.ToString();
+				Calculator.WorkStopwatch.Stop();
+				Calculator.WorkStopwatch = null;
+			}
+			if (Calculator.WorkTimer != null) {
+				Calculator.WorkTimer.Dispose();
+				Calculator.WorkTimer = null;
+			}
 			TextResult.Select(0, 0);
 		}
-		
+		public void ProcessTimer(object State) {
+			this.Dispatcher.BeginInvoke(new System.Action(ProcessTimerSet), System.Windows.Threading.DispatcherPriority.Input, null);
+		}
+		public void ProcessTimerSet() {
+			if(Calculator.WorkStopwatch!=null) {
+				TextTicks.Text = Calculator.WorkStopwatch.Elapsed.ToString();
+			}
+		}
 		string TText;
 		#region #method# TextValue_TextChanged(sender, e) 
 		private void TextValue_TextChanged(object sender, TextChangedEventArgs e) {
@@ -1720,8 +1776,20 @@ namespace Wholemy {
 			if (Calculator.WorkThread != null) {
 				Calculator.WorkThread.Abort();
 				Calculator.WorkThread = null;
+				if (Calculator.WorkStopwatch != null) {
+					Calculator.WorkStopwatch.Stop();
+					Calculator.WorkStopwatch = null;
+				}
+				if (Calculator.WorkTimer != null) {
+					Calculator.WorkTimer.Dispose();
+					Calculator.WorkTimer = null;
+				}
 			}
 			Calculator.WorkThread = new System.Threading.Thread(new System.Threading.ThreadStart(Process));
+			Calculator.WorkStopwatch = new System.Diagnostics.Stopwatch();
+			Calculator.WorkTimer = new System.Threading.Timer(new System.Threading.TimerCallback(ProcessTimer), null, 0, 100);
+
+			Calculator.WorkStopwatch.Start();
 			Calculator.WorkThread.Start();
 		}
 		#endregion
@@ -1774,18 +1842,21 @@ namespace Wholemy {
 		private void Parent_Lowef(object sender, RoutedEventArgs e) {
 			TextValue.FontFamily = Calculator.GetOnce(Calculator.Weigf);
 			TextResult.FontFamily = Calculator.GetOnce(Calculator.Weigf);
+			TextTicks.FontFamily = Calculator.GetOnce(Calculator.Weigf);
 		}
 		#endregion
 		#region #method# Parent_Sizef(sender, e) 
 		private void Parent_Sizef(object sender, RoutedEventArgs e) {
 			TextValue.FontSize = Calculator.Sizef;
 			TextResult.FontSize = Calculator.Sizef;
+			TextTicks.FontSize = Calculator.Sizef;
 		}
 		#endregion
 		#region #method# Parent_Weigf(sender, e) 
 		private void Parent_Weigf(object sender, RoutedEventArgs e) {
 			TextValue.FontFamily = Calculator.GetOnce(Calculator.Weigf);
 			TextResult.FontFamily = Calculator.GetOnce(Calculator.Weigf);
+			TextTicks.FontFamily = Calculator.GetOnce(Calculator.Weigf);
 		}
 		#endregion
 	}
